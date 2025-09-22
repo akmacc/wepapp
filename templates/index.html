@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Live Monitor Dashboard{% endblock %}
+
+{% block content %}
+<div id="monitor-section" class="dashboard-section">
+  <div class="dashboard-cards-row">
+    <section class="dashboard-card">
+      <h3>CPU Usage</h3>
+      <canvas id="cpuChart" height="140" width="180"></canvas>
+      <div class="stat-live" id="cpuValue">0%</div>
+    </section>
+    <section class="dashboard-card">
+      <h3>RAM Usage</h3>
+      <canvas id="ramChart" height="140" width="180"></canvas>
+      <div class="stat-live" id="ramValue">0%</div>
+    </section>
+    <section class="dashboard-card" style="position: relative;">
+      <h3>Storage Usage</h3>
+      <canvas id="mountPieChart" height="140" width="180"></canvas>
+      <div class="stat-live" id="mountValue">0%</div>
+      <div class="mount-select-row">
+        <select id="mountSelect" class="mount-select" onchange="changeMount()"></select>
+      </div>
+    </section>
+  </div>
+</div>
+<div id="reports-section" class="dashboard-section" style="display:none;">
+  <div class="reports-row">
+    {% for name, file in reports.items() %}
+    <article class="report-card">
+      <h4>{{ name }}</h4>
+      {% if file %}
+        <button class="action-btn view" onclick="openModal('{{ file.filename }}', '{{ name }}')">View</button>
+        <button class="action-btn download" onclick="downloadReport('{{ file.filename }}')">Download</button>
+        <div>Last update: {{ file.last_modified }}</div>
+      {% else %}
+        <p class="not-found">Report not found</p>
+      {% endif %}
+    </article>
+    {% endfor %}
+  </div>
+</div>
+<div id="modal-overlay" onclick="closeModal(event)">
+  <div id="modal-window" onclick="event.stopPropagation()">
+    <div id="modal-header">
+      <span id="modal-title"></span>
+      <button id="modal-close-btn" onclick="closeModal()">Close</button>
+    </div>
+    <iframe id="modal-iframe"></iframe>
+  </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,1978 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta name="generator" content="SQL*Plus 19.25.0">
+<title>SSG Database Health Report</title>                                                      <style>                                                                                          body  {background:#f0f8ff;font-family:Arial,sans-serif;color:#000;}                           h2    {color:#003366;text-align:center;margin:10px 0 4px;}  /* centered */                     p     {margin:4px 0;}                                                                          table {border-collapse:collapse;width:90%;margin:4px auto 20px;}                               th,td {border:1px solid #999;padding:6px 10px;}                                                th    {background:#e6f2ff;}                                                                    tr:nth-child(even){background:#f9f9f9;}                                                      </style>
+</head>
+<body>
+<p>
+<table border='1' width='90%'>
+<tr>
+<th scope="col">
+EBS CDBPRD HEALTH CHECK REPORT
+</th>
+</tr>
+<tr>
+<td>
+Oracle Database Health Report: 18 09 2025
+</td>
+</tr>
+</table>
+<p>
+<p>
+<table border='1' width='90%'>
+<tr>
+<th scope="col">
+Database Startup Time : 
+</th>
+</tr>
+<tr>
+<td>
+29-JUN-25 01:58
+</td>
+</tr>
+</table>
+<p>
+<h2>Database Size</h2>
+<br>
+<p>
+<table border='1' width='90%'>
+<tr>
+<th scope="col">
+Total Size
+</th>
+<th scope="col">
+Used Space
+</th>
+<th scope="col">
+Free Space
+</th>
+</tr>
+<tr>
+<td>
+621 GB
+</td>
+<td>
+377 GB
+</td>
+<td>
+243 GB
+</td>
+</tr>
+</table>
+<p>
+<h2>Archive Usage</h2>
+<br>
+<p>
+<table border='1' width='90%'>
+<tr>
+<th scope="col">
+DESTINATION
+</th>
+<th scope="col">
+ARCHIVE_USED_GB
+</th>
+<th scope="col">
+FRA_TOTAL_GB
+</th>
+<th scope="col">
+TOTAL_LOGS
+</th>
+</tr>
+<tr>
+<td>
+/u01/oradata/CDBPRD/archive
+</td>
+<td align="right">
+     22.34
+</td>
+<td align="right">
+       300
+</td>
+<td align="right">
+        27
+</td>
+</tr>
+</table>
+<p>
+<h2>Tablespace Status</h2>
+<br>
+<p>
+<table border='1' width='90%'>
+<tr>
+<th scope="col">
+TABLESPACE_NAME
+</th>
+<th scope="col">
+USED_MB
+</th>
+<th scope="col">
+SIZE_MB
+</th>
+<th scope="col">
+FREE_PCT
+</th>
+<th scope="col">
+STATUS
+</th>
+</tr>
+<tr>
+<td>
+APPS_TS_MEDIA
+</td>
+<td align="right">
+    183077
+</td>
+<td align="right">
+    220160
+</td>
+<td align="right">
+     16.84
+</td>
+<td>
+OK
+</td>
+</tr>
+<tr>
+<td>
+APPS_TS_TX_DATA
+</td>
+<td align="right">
+     73382
+</td>
+<td align="right">
+    118784
+</td>
+<td align="right">
+     38.22
+</td>
+<td>
+OK
+</td>
+</tr>
+<tr>
+<td>
+APPS_TS_TX_IDX
+</td>
+<td align="right">
+     25247
+</td>
+<td align="right">
+     57344
+</td>
+<td align="right">
+     55.97
+</td>
+<td>
+OK
+</td>
+</tr>
+<tr>
+<td>
+SYSAUX
+</td>
+<td align="right">
+     14371
+</td>
+<td align="right">
+     32768
+</td>
+<td align="right">
+     56.14
+</td>
+<td>
+OK
+</td>
+</tr>
+<tr>
+<td>
+DISCOVERER
+</td>
+<td align="right">
+       128
+</td>
+<td align="right">
+       512
+</td>
+<td align="right">
+        75
+</td>
+<td>
+OK
+</td>
+</tr>
+<tr>
+<td>
+APPS_TS_SEED
+</td>
+<td align="right">
+      5086
+</td>
+<td align="right">
+     24384
+</td>
+<td align="right">
+     79.14
+</td>
+<td>
+OK
+</td>
+</tr>
+<tr>
+<td>
+APPS_UNDOTS1
+</td>
+<td align="right">
+      3933
+</td>
+<td align="right">
+     32000
+</td>
+<td align="right">
+     87.71
+</td>
+<td>
+OK
+</td>
+</tr>
+<tr>
+<td>
+SYSTEM
+</td>
+<td align="right">
+     11840
+</td>
+<td align="right">
+    102400
+</td>
+<td align="right">
+     88.44
+</td>
+<td>
+OK
+</td>
+</tr>
+<tr>
+<td>
+APPS_TS_INTERFACE
+</td>
+<td align="right">
+       860
+</td>
+<td align="right">
+      8192
+</td>
+<td align="right">
+      89.5
+</td>
+<td>
+OK
+</td>
+</tr>
+<tr>
+<td>
+APPS_TS_ARCHIVE
+</td>
+<td align="right">
+       618
+</td>
+<td align="right">
+      8192
+</td>
+<td align="right">
+     92.45
+</td>
+<td>
+OK
+</td>
+</tr>
+<tr>
+<td>
+APPS_TS_NOLOGGING
+</td>
+<td align="right">
+       410
+</td>
+<td align="right">
+      8192
+</td>
+<td align="right">
+        95
+</td>
+<td>
+OK
+</td>
+</tr>
+<tr>
+<td>
+TEMP2
+</td>
+<td align="right">
+       291
+</td>
+<td align="right">
+     16000
+</td>
+<td align="right">
+     98.18
+</td>
+<td>
+OK
+</td>
+</tr>
+<tr>
+<td>
+APPS_TS_SUMMARY
+</td>
+<td align="right">
+       141
+</td>
+<td align="right">
+      8192
+</td>
+<td align="right">
+     98.28
+</td>
+<td>
+OK
+</td>
+</tr>
+<tr>
+<td>
+APPS_TS_QUEUES
+</td>
+<td align="right">
+       277
+</td>
+<td align="right">
+     16384
+</td>
+<td align="right">
+     98.31
+</td>
+<td>
+OK
+</td>
+</tr>
+<tr>
+<td>
+TEMP1
+</td>
+<td align="right">
+       492
+</td>
+<td align="right">
+     48000
+</td>
+<td align="right">
+     98.98
+</td>
+<td>
+OK
+</td>
+</tr>
+<tr>
+<td>
+ODM
+</td>
+<td align="right">
+        15
+</td>
+<td align="right">
+      8192
+</td>
+<td align="right">
+     99.82
+</td>
+<td>
+OK
+</td>
+</tr>
+<tr>
+<td>
+OLAP
+</td>
+<td align="right">
+         1
+</td>
+<td align="right">
+      1024
+</td>
+<td align="right">
+      99.9
+</td>
+<td>
+OK
+</td>
+</tr>
+<tr>
+<td>
+PORTAL
+</td>
+<td align="right">
+         1
+</td>
+<td align="right">
+      8192
+</td>
+<td align="right">
+     99.98
+</td>
+<td>
+OK
+</td>
+</tr>
+<tr>
+<td>
+OWAPUB
+</td>
+<td align="right">
+         0
+</td>
+<td align="right">
+      8192
+</td>
+<td align="right">
+       100
+</td>
+<td>
+OK
+</td>
+</tr>
+<tr>
+<td>
+APPS_TS_TOOLS
+</td>
+<td align="right">
+         0
+</td>
+<td align="right">
+      8192
+</td>
+<td align="right">
+       100
+</td>
+<td>
+OK
+</td>
+</tr>
+<tr>
+<td>
+INTERIM
+</td>
+<td align="right">
+         0
+</td>
+<td align="right">
+      8192
+</td>
+<td align="right">
+       100
+</td>
+<td>
+OK
+</td>
+</tr>
+</table>
+<p>
+<h2>Invalid Objects</h2>
+<br>
+<p>
+<table border='1' width='90%'>
+<tr>
+<th scope="col">
+OWNER
+</th>
+<th scope="col">
+OBJECT_NAME
+</th>
+<th scope="col">
+OBJECT_TYPE
+</th>
+<th scope="col">
+CREATED
+</th>
+</tr>
+<tr>
+<td>
+OWAPUB
+</td>
+<td>
+DEBUG_CARTX
+</td>
+<td>
+PACKAGE BODY
+</td>
+<td>
+28-JUN-25
+</td>
+</tr>
+<tr>
+<td>
+OWAPUB
+</td>
+<td>
+OWA_OPT_LOCK
+</td>
+<td>
+PACKAGE BODY
+</td>
+<td>
+28-JUN-25
+</td>
+</tr>
+<tr>
+<td>
+OWAPUB
+</td>
+<td>
+OWA_UTIL
+</td>
+<td>
+PACKAGE BODY
+</td>
+<td>
+28-JUN-25
+</td>
+</tr>
+<tr>
+<td>
+APPS
+</td>
+<td>
+MTH_SHIFT_REFERENCE_MV
+</td>
+<td>
+MATERIALIZED VIEW
+</td>
+<td>
+28-JUN-25
+</td>
+</tr>
+<tr>
+<td>
+APPS
+</td>
+<td>
+MSC_ATP_PLAN_SN
+</td>
+<td>
+MATERIALIZED VIEW
+</td>
+<td>
+28-JUN-25
+</td>
+</tr>
+<tr>
+<td>
+APPS
+</td>
+<td>
+OE_INT_ITEMS_MV
+</td>
+<td>
+MATERIALIZED VIEW
+</td>
+<td>
+28-JUN-25
+</td>
+</tr>
+<tr>
+<td>
+APPS
+</td>
+<td>
+OE_ITEMS_MV
+</td>
+<td>
+MATERIALIZED VIEW
+</td>
+<td>
+28-JUN-25
+</td>
+</tr>
+<tr>
+<td>
+APPS
+</td>
+<td>
+OZF_CUST_FUND_SUMMARY_MV
+</td>
+<td>
+MATERIALIZED VIEW
+</td>
+<td>
+28-JUN-25
+</td>
+</tr>
+<tr>
+<td>
+APPS
+</td>
+<td>
+MRP_COMPANY_USERS_SN
+</td>
+<td>
+MATERIALIZED VIEW
+</td>
+<td>
+28-JUN-25
+</td>
+</tr>
+<tr>
+<td>
+APPS
+</td>
+<td>
+AZ_COMP_REPORTER
+</td>
+<td>
+PACKAGE BODY
+</td>
+<td>
+28-JUN-25
+</td>
+</tr>
+<tr>
+<td>
+APPS
+</td>
+<td>
+AZ_DIFF_RESULTS
+</td>
+<td>
+SYNONYM
+</td>
+<td>
+28-JUN-25
+</td>
+</tr>
+<tr>
+<td>
+APPS
+</td>
+<td>
+AZ_R12_TRANSFORM_CASCADE
+</td>
+<td>
+PACKAGE BODY
+</td>
+<td>
+28-JUN-25
+</td>
+</tr>
+<tr>
+<td>
+APPS
+</td>
+<td>
+AZ_R12_UPD_DET_LOG
+</td>
+<td>
+PACKAGE BODY
+</td>
+<td>
+28-JUN-25
+</td>
+</tr>
+<tr>
+<td>
+APPS
+</td>
+<td>
+AZ_REPORTER_DATA
+</td>
+<td>
+SYNONYM
+</td>
+<td>
+28-JUN-25
+</td>
+</tr>
+<tr>
+<td>
+APPS
+</td>
+<td>
+AZ_REQUESTS
+</td>
+<td>
+SYNONYM
+</td>
+<td>
+28-JUN-25
+</td>
+</tr>
+<tr>
+<td>
+APPS
+</td>
+<td>
+AZ_VALIDATE_ACTIVE
+</td>
+<td>
+PACKAGE BODY
+</td>
+<td>
+28-JUN-25
+</td>
+</tr>
+<tr>
+<td>
+APPS
+</td>
+<td>
+BEN_ACA_XML_PROCESS
+</td>
+<td>
+PACKAGE BODY
+</td>
+<td>
+28-JUN-25
+</td>
+</tr>
+<tr>
+<td>
+APPS
+</td>
+<td>
+CSR_RULES_B
+</td>
+<td>
+SYNONYM
+</td>
+<td>
+28-JUN-25
+</td>
+</tr>
+<tr>
+<td>
+APPS
+</td>
+<td>
+CSR_RULES_EXPLODED_V
+</td>
+<td>
+VIEW
+</td>
+<td>
+28-JUN-25
+</td>
+</tr>
+<tr>
+<td>
+APPS
+</td>
+<td>
+CSR_RULES_PVT
+</td>
+<td>
+PACKAGE BODY
+</td>
+<td>
+28-JUN-25
+</td>
+</tr>
+<tr>
+<td>
+APPS
+</td>
+<td>
+CSR_RULES_TRANSLATED_V
+</td>
+<td>
+VIEW
+</td>
+<td>
+28-JUN-25
+</td>
+</tr>
+<tr>
+<td>
+APPS
+</td>
+<td>
+CSR_RULES_VL
+</td>
+<td>
+VIEW
+</td>
+<td>
+28-JUN-25
+</td>
+</tr>
+<tr>
+<td>
+APPS
+</td>
+<td>
+CSR_RULE_WINDOWS_V
+</td>
+<td>
+VIEW
+</td>
+<td>
+28-JUN-25
+</td>
+</tr>
+<tr>
+<td>
+APPS
+</td>
+<td>
+CSR_WTP_DISPLAY_V
+</td>
+<td>
+VIEW
+</td>
+<td>
+28-JUN-25
+</td>
+</tr>
+<tr>
+<td>
+APPS
+</td>
+<td>
+DB_PERFORMANCE_ANALYZER_PKG
+</td>
+<td>
+PACKAGE BODY
+</td>
+<td>
+28-JUN-25
+</td>
+</tr>
+<tr>
+<td>
+APPS
+</td>
+<td>
+XXGL_FUND_INQ_SUM_VIEW_BKP
+</td>
+<td>
+VIEW
+</td>
+<td>
+28-JUN-25
+</td>
+</tr>
+<tr>
+<td>
+APPS
+</td>
+<td>
+ZX_DV_DFIX_LOG
+</td>
+<td>
+PACKAGE BODY
+</td>
+<td>
+28-JUN-25
+</td>
+</tr>
+<tr>
+<td>
+AZ
+</td>
+<td>
+AZ_DIFF_RESULTS#
+</td>
+<td>
+VIEW
+</td>
+<td>
+28-JUN-25
+</td>
+</tr>
+<tr>
+<td>
+AZ
+</td>
+<td>
+AZ_REPORTER_DATA#
+</td>
+<td>
+VIEW
+</td>
+<td>
+28-JUN-25
+</td>
+</tr>
+<tr>
+<td>
+AZ
+</td>
+<td>
+AZ_REQUESTS#
+</td>
+<td>
+VIEW
+</td>
+<td>
+28-JUN-25
+</td>
+</tr>
+<tr>
+<td>
+CSR
+</td>
+<td>
+CSR_RULES_B#
+</td>
+<td>
+VIEW
+</td>
+<td>
+28-JUN-25
+</td>
+</tr>
+<tr>
+<td>
+APPS
+</td>
+<td>
+OZF_EARNING_SUMMARY_MV
+</td>
+<td>
+MATERIALIZED VIEW
+</td>
+<td>
+28-JUN-25
+</td>
+</tr>
+</table>
+<p>
+<h2>Concurrent Managers Status</h2>
+<br>
+<p>
+<table border='1' width='90%'>
+<tr>
+<th scope="col">
+Concurrent Manager's Name
+</th>
+<th scope="col">
+Target Processes
+</th>
+<th scope="col">
+Actual Processes
+</th>
+</tr>
+<tr>
+<td>
+Marketing Data Mining Manager
+</td>
+<td align="right">
+         0
+</td>
+<td align="right">
+         0
+</td>
+</tr>
+<tr>
+<td>
+Workflow Document Web Services Service
+</td>
+<td align="right">
+         1
+</td>
+<td align="right">
+         1
+</td>
+</tr>
+<tr>
+<td>
+WMS Task Archiving Manager
+</td>
+<td align="right">
+         0
+</td>
+<td align="right">
+         0
+</td>
+</tr>
+<tr>
+<td>
+FastFormula Transaction Manager
+</td>
+<td align="right">
+         0
+</td>
+<td align="right">
+         0
+</td>
+</tr>
+<tr>
+<td>
+Output Post Processor
+</td>
+<td align="right">
+         2
+</td>
+<td align="right">
+         2
+</td>
+</tr>
+<tr>
+<td>
+Conflict Resolution Manager
+</td>
+<td align="right">
+         1
+</td>
+<td align="right">
+         1
+</td>
+</tr>
+<tr>
+<td>
+Internal Manager
+</td>
+<td align="right">
+         1
+</td>
+<td align="right">
+         1
+</td>
+</tr>
+<tr>
+<td>
+Scheduler/Prereleaser Manager
+</td>
+<td align="right">
+         1
+</td>
+<td align="right">
+         1
+</td>
+</tr>
+<tr>
+<td>
+Standard Manager
+</td>
+<td align="right">
+        10
+</td>
+<td align="right">
+        10
+</td>
+</tr>
+<tr>
+<td>
+PO Document Approval Manager
+</td>
+<td align="right">
+         1
+</td>
+<td align="right">
+         1
+</td>
+</tr>
+<tr>
+<td>
+Receiving Transaction Manager
+</td>
+<td align="right">
+         1
+</td>
+<td align="right">
+         1
+</td>
+</tr>
+<tr>
+<td>
+PA Streamline Manager
+</td>
+<td align="right">
+         0
+</td>
+<td align="right">
+         0
+</td>
+</tr>
+<tr>
+<td>
+Inventory Manager
+</td>
+<td align="right">
+         0
+</td>
+<td align="right">
+         0
+</td>
+</tr>
+<tr>
+<td>
+INV Remote Procedure Manager
+</td>
+<td align="right">
+         0
+</td>
+<td align="right">
+         0
+</td>
+</tr>
+<tr>
+<td>
+Workflow Agent Listener Service
+</td>
+<td align="right">
+         1
+</td>
+<td align="right">
+         1
+</td>
+</tr>
+<tr>
+<td>
+Workflow Mailer Service
+</td>
+<td align="right">
+         1
+</td>
+<td align="right">
+         1
+</td>
+</tr>
+<tr>
+<td>
+Transportation Manager
+</td>
+<td align="right">
+         0
+</td>
+<td align="right">
+         0
+</td>
+</tr>
+<tr>
+<td>
+C AQCART Service
+</td>
+<td align="right">
+         0
+</td>
+<td align="right">
+         0
+</td>
+</tr>
+<tr>
+<td>
+Session History Cleanup
+</td>
+<td align="right">
+         1
+</td>
+<td align="right">
+         1
+</td>
+</tr>
+<tr>
+<td>
+UWQ Worklist Items Release for Crashed Session
+</td>
+<td align="right">
+         1
+</td>
+<td align="right">
+         1
+</td>
+</tr>
+<tr>
+<td>
+SFM Controller Service
+</td>
+<td align="right">
+         0
+</td>
+<td align="right">
+         0
+</td>
+</tr>
+<tr>
+<td>
+SFM Order Queue Service
+</td>
+<td align="right">
+         0
+</td>
+<td align="right">
+         0
+</td>
+</tr>
+<tr>
+<td>
+SFM Work Item Queue Service
+</td>
+<td align="right">
+         0
+</td>
+<td align="right">
+         0
+</td>
+</tr>
+<tr>
+<td>
+SFM Fulfillment Actions Queue Service
+</td>
+<td align="right">
+         0
+</td>
+<td align="right">
+         0
+</td>
+</tr>
+<tr>
+<td>
+SFM Fulfillment Element Ready Queue Service
+</td>
+<td align="right">
+         0
+</td>
+<td align="right">
+         0
+</td>
+</tr>
+<tr>
+<td>
+SFM Event Manager Queue Service
+</td>
+<td align="right">
+         0
+</td>
+<td align="right">
+         0
+</td>
+</tr>
+<tr>
+<td>
+SFM Inbound Messages Queue Service
+</td>
+<td align="right">
+         0
+</td>
+<td align="right">
+         0
+</td>
+</tr>
+<tr>
+<td>
+SFM Timer Queue Service
+</td>
+<td align="right">
+         0
+</td>
+<td align="right">
+         0
+</td>
+</tr>
+<tr>
+<td>
+SFM Application Monitoring Service
+</td>
+<td align="right">
+         0
+</td>
+<td align="right">
+         0
+</td>
+</tr>
+<tr>
+<td>
+SFM SM Interface Test Service
+</td>
+<td align="right">
+         0
+</td>
+<td align="right">
+         0
+</td>
+</tr>
+<tr>
+<td>
+OAM Metrics Collection Manager
+</td>
+<td align="right">
+         1
+</td>
+<td align="right">
+         1
+</td>
+</tr>
+</table>
+<p>
+<h2>Workflow Mailer Status</h2>
+<br>
+<p>
+<table border='1' width='90%'>
+<tr>
+<th scope="col">
+COMPONENT_NAME
+</th>
+<th scope="col">
+COMPONENT_STATUS
+</th>
+</tr>
+<tr>
+<td>
+Workflow Java Deferred Agent Listener
+</td>
+<td>
+RUNNING
+</td>
+</tr>
+<tr>
+<td>
+Workflow Java Error Agent Listener
+</td>
+<td>
+RUNNING
+</td>
+</tr>
+<tr>
+<td>
+Web Services OUT Agent
+</td>
+<td>
+RUNNING
+</td>
+</tr>
+<tr>
+<td>
+MCS Push Notification Provider
+</td>
+<td>
+RUNNING
+</td>
+</tr>
+<tr>
+<td>
+Web Services IN Agent
+</td>
+<td>
+RUNNING
+</td>
+</tr>
+<tr>
+<td>
+WF_JMS_IN Listener(M4U)
+</td>
+<td>
+RUNNING
+</td>
+</tr>
+<tr>
+<td>
+Workflow Inbound JMS Agent Listener
+</td>
+<td>
+RUNNING
+</td>
+</tr>
+<tr>
+<td>
+ECX Inbound Agent Listener
+</td>
+<td>
+RUNNING
+</td>
+</tr>
+<tr>
+<td>
+ECX Transaction Agent Listener
+</td>
+<td>
+RUNNING
+</td>
+</tr>
+<tr>
+<td>
+Workflow Deferred Agent Listener
+</td>
+<td>
+RUNNING
+</td>
+</tr>
+<tr>
+<td>
+Workflow Deferred Notification Agent Listener
+</td>
+<td>
+RUNNING
+</td>
+</tr>
+<tr>
+<td>
+Workflow Error Agent Listener
+</td>
+<td>
+RUNNING
+</td>
+</tr>
+<tr>
+<td>
+Workflow Inbound Notifications Agent Listener
+</td>
+<td>
+RUNNING
+</td>
+</tr>
+<tr>
+<td>
+Workflow Notification Mailer
+</td>
+<td>
+DEACTIVATED_SYSTEM
+</td>
+</tr>
+</table>
+<p>
+<h2>Database Growth</h2>
+<br>
+<p>
+<table border='1' width='90%'>
+<tr>
+<th scope="col">
+SYSDATE
+</th>
+<th scope="col">
+TOTAL_SPACE
+</th>
+<th scope="col">
+USED_SPACE
+</th>
+<th scope="col">
+FREE_SPACE
+</th>
+<th scope="col">
+PCT_INUSE
+</th>
+<th scope="col">
+NUM_DB_FILES
+</th>
+</tr>
+<tr>
+<td>
+18-SEP-25
+</td>
+<td align="right">
+555.232422
+</td>
+<td align="right">
+311.901733
+</td>
+<td align="right">
+243.330688
+</td>
+<td align="right">
+     56.17
+</td>
+<td align="right">
+        56
+</td>
+</tr>
+</table>
+<p>
+<h2>Top 10 Largest Segments</h2>
+<br>
+<p>
+<table border='1' width='90%'>
+<tr>
+<th scope="col">
+OWNER
+</th>
+<th scope="col">
+SEGMENT_NAME
+</th>
+<th scope="col">
+SEGMENT_TYPE
+</th>
+<th scope="col">
+SIZE_GB
+</th>
+</tr>
+<tr>
+<td>
+APPLSYS
+</td>
+<td>
+SYS_LOB0002837914C00004$$
+</td>
+<td>
+LOBSEGMENT
+</td>
+<td align="right">
+    178.24
+</td>
+</tr>
+<tr>
+<td>
+APPLSYS
+</td>
+<td>
+FND_LOG_MESSAGES
+</td>
+<td>
+TABLE
+</td>
+<td align="right">
+     18.77
+</td>
+</tr>
+<tr>
+<td>
+SSP
+</td>
+<td>
+XXAR_CUSTOMERS_STG_ARCHIVE
+</td>
+<td>
+TABLE
+</td>
+<td align="right">
+     14.84
+</td>
+</tr>
+<tr>
+<td>
+AUDSYS
+</td>
+<td>
+SYS_LOB0000018567C00030$$
+</td>
+<td>
+LOB PARTITION
+</td>
+<td align="right">
+      4.71
+</td>
+</tr>
+<tr>
+<td>
+JTF
+</td>
+<td>
+SYS_LOB0002838358C00018$$
+</td>
+<td>
+LOBSEGMENT
+</td>
+<td align="right">
+      4.62
+</td>
+</tr>
+<tr>
+<td>
+SYS
+</td>
+<td>
+SOURCE$
+</td>
+<td>
+TABLE
+</td>
+<td align="right">
+      3.31
+</td>
+</tr>
+<tr>
+<td>
+SYS
+</td>
+<td>
+WRI$_OPTSTAT_HISTHEAD_HISTORY
+</td>
+<td>
+TABLE PARTITION
+</td>
+<td align="right">
+      3.17
+</td>
+</tr>
+<tr>
+<td>
+XDO
+</td>
+<td>
+SYS_LOB0002839405C00010$$
+</td>
+<td>
+LOBSEGMENT
+</td>
+<td align="right">
+      3.09
+</td>
+</tr>
+<tr>
+<td>
+SYS
+</td>
+<td>
+I_WRI$_OPTSTAT_HH_OBJ_ICOL_ST
+</td>
+<td>
+INDEX
+</td>
+<td align="right">
+      2.92
+</td>
+</tr>
+<tr>
+<td>
+APPLSYS
+</td>
+<td>
+WF_ITEM_ATTRIBUTE_VALUES_PK
+</td>
+<td>
+INDEX
+</td>
+<td align="right">
+      2.14
+</td>
+</tr>
+</table>
+<p>
+<h2>Concurrent Programs with SQL Trace Enabled</h2>
+<br>
+<h2>Concurrent Program Daily History</h2>
+<br>
+<p>
+<table border='1' width='90%'>
+<tr>
+<th scope="col">
+START_DATE
+</th>
+<th scope="col">
+COUNT
+</th>
+<th scope="col">
+RUNNING_HOURS
+</th>
+<th scope="col">
+AVG_RUNNING_HOURS
+</th>
+<th scope="col">
+PENDING_HOURS
+</th>
+<th scope="col">
+AVG_PENDING_HOURS
+</th>
+</tr>
+<tr>
+<td>
+12-SEP-25 FRI
+</td>
+<td align="right">
+         2
+</td>
+<td align="right">
+     10.77
+</td>
+<td align="right">
+      5.39
+</td>
+<td align="right">
+       .01
+</td>
+<td align="right">
+         0
+</td>
+</tr>
+<tr>
+<td>
+13-SEP-25 SAT
+</td>
+<td align="right">
+      2146
+</td>
+<td align="right">
+      16.6
+</td>
+<td align="right">
+       .01
+</td>
+<td align="right">
+      7.21
+</td>
+<td align="right">
+         0
+</td>
+</tr>
+<tr>
+<td>
+14-SEP-25 SUN
+</td>
+<td align="right">
+      2132
+</td>
+<td align="right">
+     25.97
+</td>
+<td align="right">
+       .01
+</td>
+<td align="right">
+      7.63
+</td>
+<td align="right">
+         0
+</td>
+</tr>
+<tr>
+<td>
+15-SEP-25 MON
+</td>
+<td align="right">
+      2324
+</td>
+<td align="right">
+     18.38
+</td>
+<td align="right">
+       .01
+</td>
+<td align="right">
+    586.54
+</td>
+<td align="right">
+       .25
+</td>
+</tr>
+<tr>
+<td>
+16-SEP-25 TUE
+</td>
+<td align="right">
+      2274
+</td>
+<td align="right">
+     16.94
+</td>
+<td align="right">
+       .01
+</td>
+<td align="right">
+     265.6
+</td>
+<td align="right">
+       .12
+</td>
+</tr>
+<tr>
+<td>
+17-SEP-25 WED
+</td>
+<td align="right">
+      2214
+</td>
+<td align="right">
+     16.16
+</td>
+<td align="right">
+       .01
+</td>
+<td align="right">
+    285.09
+</td>
+<td align="right">
+       .13
+</td>
+</tr>
+<tr>
+<td>
+18-SEP-25 THU
+</td>
+<td align="right">
+       494
+</td>
+<td align="right">
+       5.5
+</td>
+<td align="right">
+       .01
+</td>
+<td align="right">
+       1.8
+</td>
+<td align="right">
+         0
+</td>
+</tr>
+</table>
+<p>
+<h2>Concurrent Requests ended in Error for last 24h</h2>
+<br>
+<h2>Long Running Concurrent Requests</h2>
+<br>
+<h2>Application Users Status for last 20 days</h2>
+<br>
+<h2>Database Backup Status</h2>
+<br>
+<p>
+<table border='1' width='90%'>
+<tr>
+<th scope="col">
+SESSION_KEY
+</th>
+<th scope="col">
+INPUT_TYPE
+</th>
+<th scope="col">
+STATUS
+</th>
+<th scope="col">
+START_TIME
+</th>
+<th scope="col">
+END_TIME
+</th>
+<th scope="col">
+HRS
+</th>
+</tr>
+<tr>
+<td align="right">
+       772
+</td>
+<td>
+DB FULL
+</td>
+<td>
+COMPLETED
+</td>
+<td>
+09/12/25 00:05
+</td>
+<td>
+09/12/25 01:22
+</td>
+<td align="right">
+    1.2925
+</td>
+</tr>
+<tr>
+<td align="right">
+       782
+</td>
+<td>
+DB FULL
+</td>
+<td>
+COMPLETED
+</td>
+<td>
+09/13/25 00:05
+</td>
+<td>
+09/13/25 01:22
+</td>
+<td align="right">
+      1.29
+</td>
+</tr>
+<tr>
+<td align="right">
+       792
+</td>
+<td>
+DB FULL
+</td>
+<td>
+COMPLETED
+</td>
+<td>
+09/14/25 00:05
+</td>
+<td>
+09/14/25 01:18
+</td>
+<td align="right">
+1.21944444
+</td>
+</tr>
+<tr>
+<td align="right">
+       802
+</td>
+<td>
+DB FULL
+</td>
+<td>
+COMPLETED
+</td>
+<td>
+09/15/25 00:05
+</td>
+<td>
+09/15/25 01:20
+</td>
+<td align="right">
+1.24888889
+</td>
+</tr>
+<tr>
+<td align="right">
+       812
+</td>
+<td>
+DB FULL
+</td>
+<td>
+COMPLETED
+</td>
+<td>
+09/16/25 00:05
+</td>
+<td>
+09/16/25 01:23
+</td>
+<td align="right">
+1.30805556
+</td>
+</tr>
+<tr>
+<td align="right">
+       822
+</td>
+<td>
+DB FULL
+</td>
+<td>
+COMPLETED
+</td>
+<td>
+09/17/25 00:05
+</td>
+<td>
+09/17/25 01:22
+</td>
+<td align="right">
+1.29194444
+</td>
+</tr>
+<tr>
+<td align="right">
+       832
+</td>
+<td>
+DB FULL
+</td>
+<td>
+COMPLETED
+</td>
+<td>
+09/18/25 00:05
+</td>
+<td>
+09/18/25 01:23
+</td>
+<td align="right">
+1.30666667
+</td>
+</tr>
+</table>
+<p>
+</body>
+</html>
+
