@@ -73,6 +73,32 @@ let netIOChart = new Chart(netIOCtx, {
   }
 });
 
+let tablespaceReportFilename = "";  // Stores current tablespace report filename
+
+function showSection(section) {
+  document.getElementById('monitor-section').style.display = section === 'monitor' ? 'block' : 'none';
+  document.getElementById('reports-section').style.display = section === 'reports' ? 'block' : 'none';
+  document.getElementById('live-report-section').style.display = section === 'live-report' ? 'block' : 'none';
+  document.getElementById('nav-monitor').classList.toggle('active', section === 'monitor');
+  document.getElementById('nav-reports').classList.toggle('active', section === 'reports');
+  document.getElementById('nav-live-report').classList.toggle('active', section === 'live-report');
+}
+
+// Function to run tablespace shell script
+async function runTablespaceReport() {
+  try {
+    const res = await fetch('/api/run-tablespace-report', { method: 'POST' });
+    if (!res.ok) throw new Error("Failed to run tablespace script");
+    const data = await res.json();
+    tablespaceReportFilename = data.filename;
+    document.getElementById('tablespace-last-update').textContent = `Last update: ${data.last_modified}`;
+    showMessage("Tablespace report generated successfully");
+  }
+  catch (err) {
+    showMessage("Error: " + err.message);
+  }
+}
+
 let mountPieChart = null;
 let mountsData = [];
 let selectedMountIndex = 0;

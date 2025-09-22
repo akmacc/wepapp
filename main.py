@@ -10,11 +10,17 @@ from jose import jwt, JWTError
 from datetime import datetime, timedelta
 from typing import Optional
 from pydantic import BaseModel
-
+from fastapi import BackgroundTasks
+import subprocess
 import asyncio
 import socket
 import psutil
 import os
+
+# -------------------------
+# Script path
+# -------------------------
+TABLESPACE_SCRIPT_PATH = "./scripts/tablespace_report.sh"  # Adjust shell script path here
 
 # -------------------------
 # App setup
@@ -232,3 +238,30 @@ def logout():
     response = RedirectResponse("/static/login.html")
     response.delete_cookie("access_token")
     return response
+
+@app.post("/api/run-tablespace-report")
+async def run_tablespace_report(background_tasks: BackgroundTasks):
+    # Run shell script asynchronously
+    def run_script():
+        subprocess.run([TABLESPACE_SCRIPT_PATH], check=True)
+
+    background_tasks.add_task(run_script)
+
+    # Assume your shell script outputs HTML report to REPORT_DIR with timestamped filename
+    # Get latest tablespace report file after running script (simplified here - ideally wait for completion)
+    latest_file = None
+    latest_mtime = None
+    for fname in os.listdir(REPORT_DIR):
+        if fname.startswith("tablespace_report_") and fname.endswith(".html"):
+            fpath = os.path.join(REPORT_DIR, fname)
+            mtime = os.path.getmtime(fpath)
+            if latest_mtime is None or mtime > latest_mtime:
+                latest_file = fname
+                latest_mtime = mtime
+
+    if latest_file is None:
+        return JSONResponse({"error": "Report not found after running script"}, status_code=404)
+
+    last_modified = datetime.fromtimestamp(latest_mtime).strftime("%Y-%m-%d %H:%M:%S")
+
+    return {"filename": latest_file, "last_modified": last_modified}

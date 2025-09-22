@@ -456,3 +456,30 @@ body, html {
     color: #7f62ca;
 }
 
+.button-row {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+#tablespace-card .action-btn {
+  min-width: 80px;
+  margin-right: 0;
+  font-size: 15px;
+}
+#tablespace-card {
+  min-width: 300px;
+  max-width: 300px;
+}
+.action-btn.run {
+  background: #18ae62;
+  color: #fff;
+  border: none;
+}
+
+.action-btn.run:hover {
+  background: #16a34a;
+  color: #fff;
+}
+

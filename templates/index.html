@@ -34,6 +34,20 @@
     </section>
   </div>
 </div>
+<div id="live-report-section" class="dashboard-section" style="display:none;">
+  <div class="reports-row">
+    <!-- Tablespace card -->
+    <article class="report-card" id="tablespace-card" style="min-width:300px;max-width:300px;">
+  <h4>Tablespace</h4>
+  <div class="button-row">
+    <button class="action-btn run" onclick="runTablespaceReport()">Run</button>
+    <button class="action-btn view" onclick="openModal(tablespaceReportFilename, 'Tablespace')">View</button>
+    <button class="action-btn download" onclick="downloadReport(tablespaceReportFilename)">Download</button>
+  </div>
+  <div class="last-update" id="tablespace-last-update">Last update: Not run yet</div>
+</article>
+  </div>
+</div>
 
 <div id="reports-section" class="dashboard-section" style="display:none;">
   <div class="reports-row">
