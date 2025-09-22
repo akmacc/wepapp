@@ -10,6 +10,8 @@ from jose import jwt, JWTError
 from datetime import datetime, timedelta
 from typing import Optional
 from pydantic import BaseModel
+
+import asyncio
 import socket
 import psutil
 import os
@@ -201,9 +203,32 @@ async def mount_usage():
             continue
     return JSONResponse(usage_data)
 
+@app.get("/api/disk-io-rate")
+async def disk_io_rate():
+    io1 = psutil.disk_io_counters()
+    await asyncio.sleep(1)
+    io2 = psutil.disk_io_counters()
+    read_rate = (io2.read_bytes - io1.read_bytes) / (1024 ** 2)  # MB/s
+    write_rate = (io2.write_bytes - io1.write_bytes) / (1024 ** 2)  # MB/s
+    return JSONResponse({
+        "read_mb_per_s": round(read_rate, 2),
+        "write_mb_per_s": round(write_rate, 2)
+    })
+
+@app.get("/api/network-io-rate")
+async def network_io_rate():
+    net1 = psutil.net_io_counters()
+    await asyncio.sleep(1)
+    net2 = psutil.net_io_counters()
+    sent_rate = (net2.bytes_sent - net1.bytes_sent) / (1024 ** 2)  # MB/s
+    recv_rate = (net2.bytes_recv - net1.bytes_recv) / (1024 ** 2)  # MB/s
+    return JSONResponse({
+        "sent_mb_per_s": round(sent_rate, 2),
+        "recv_mb_per_s": round(recv_rate, 2)
+    })
+
 @app.get("/logout")
 def logout():
     response = RedirectResponse("/static/login.html")
     response.delete_cookie("access_token")
     return response
-

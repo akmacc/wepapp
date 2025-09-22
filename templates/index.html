@@ -3,7 +3,7 @@
 
 {% block content %}
 <div id="monitor-section" class="dashboard-section">
-  <div class="dashboard-cards-row">
+  <div class="dashboard-cards-row monitor-grid">
     <section class="dashboard-card">
       <h3>CPU Usage</h3>
       <canvas id="cpuChart" height="140" width="180"></canvas>
@@ -22,8 +22,19 @@
         <select id="mountSelect" class="mount-select" onchange="changeMount()"></select>
       </div>
     </section>
+    <section class="dashboard-card">
+      <h3>Disk I/O Rate (MB/s)</h3>
+      <canvas id="diskIOChart" height="140" width="180"></canvas>
+      <div class="stat-live" id="diskIOValue">Read: 0 / Write: 0</div>
+    </section>
+    <section class="dashboard-card">
+      <h3>Network I/O Rate (MB/s)</h3>
+      <canvas id="netIOChart" height="140" width="180"></canvas>
+      <div class="stat-live" id="netIOValue">Sent: 0 / Recv: 0</div>
+    </section>
   </div>
 </div>
+
 <div id="reports-section" class="dashboard-section" style="display:none;">
   <div class="reports-row">
     {% for name, file in reports.items() %}
@@ -40,6 +51,7 @@
     {% endfor %}
   </div>
 </div>
+
 <div id="modal-overlay" onclick="closeModal(event)">
   <div id="modal-window" onclick="event.stopPropagation()">
     <div id="modal-header">

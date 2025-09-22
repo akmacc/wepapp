@@ -149,11 +149,17 @@ body {
 }
 .dashboard-cards-row {
   display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 25px;
+}
+.monitor-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr);
   gap: 18px;
   margin-top: 25px;
 }
 .dashboard-card {
-  flex: 1;
   background: #fff;
   border-radius: 22px;
   padding: 16px 16px 16px 16px;
@@ -438,5 +444,15 @@ body, html {
   background: white;
   border-radius: 15px 15px 15px 15px;
   overflow-y: auto;
+}
+
+#diskIOValue,
+#netIOValue {
+    font-size: 12px;      /* Adjust size as needed */
+    font-weight: 550;
+    text-align: center;
+    margin-top: 14px;
+    margin-bottom: 10px;
+    color: #7f62ca;
 }
 

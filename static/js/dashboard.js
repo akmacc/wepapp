@@ -12,6 +12,8 @@ function showSection(section) {
 const cpuCtx = document.getElementById('cpuChart').getContext('2d');
 const ramCtx = document.getElementById('ramChart').getContext('2d');
 const mountPieCtx = document.getElementById('mountPieChart').getContext('2d');
+const diskIOCtx = document.getElementById('diskIOChart').getContext('2d');
+const netIOCtx = document.getElementById('netIOChart').getContext('2d');
 
 let cpuChart = new Chart(cpuCtx, {
   type: 'doughnut',
@@ -19,7 +21,7 @@ let cpuChart = new Chart(cpuCtx, {
     labels: ['Used (%)', 'Free (%)'],
     datasets: [{ data: [0, 100], backgroundColor: ['#22c7ff', '#212942'], borderWidth: 2 }]
   },
-  options: { responsive: true, cutout: '70%', plugins: { legend: { display: false }}}
+  options: { responsive: true, cutout: '70%', plugins: { legend: { display: false } } }
 });
 
 let ramChart = new Chart(ramCtx, {
@@ -28,7 +30,47 @@ let ramChart = new Chart(ramCtx, {
     labels: ['Used (%)', 'Free (%)'],
     datasets: [{ data: [0, 100], backgroundColor: ['#11c78e', '#212942'], borderWidth: 2 }]
   },
-  options: { responsive: true, cutout: '70%', plugins: { legend: { display: false }}}
+  options: { responsive: true, cutout: '70%', plugins: { legend: { display: false } } }
+});
+
+// Disk I/O doughnut chart (Read/Write total mapped to percentage style)
+let diskIOChart = new Chart(diskIOCtx, {
+  type: 'doughnut',
+  data: {
+    labels: ['Read (MB/s)', 'Write (MB/s)'],
+    datasets: [
+      {
+        data: [0, 0], // read, write
+        backgroundColor: ['#ff6384', '#36a2eb'],
+        borderWidth: 2
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    cutout: '70%',
+    plugins: { legend: { display: false } }
+  }
+});
+
+// Network I/O doughnut chart (Sent/Recv total mapped to percentage style)
+let netIOChart = new Chart(netIOCtx, {
+  type: 'doughnut',
+  data: {
+    labels: ['Sent (MB/s)', 'Recv (MB/s)'],
+    datasets: [
+      {
+        data: [0, 0], // sent, recv
+        backgroundColor: ['#ff9f40', '#4bc0c0'],
+        borderWidth: 2
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    cutout: '70%',
+    plugins: { legend: { display: false } }
+  }
 });
 
 let mountPieChart = null;
@@ -65,7 +107,7 @@ function renderMountPieChart() {
       labels: ['Used (%)', 'Free (%)'],
       datasets: [{ data: [used, free], backgroundColor: ['#22c7ff', '#212942'], borderWidth: 2 }]
     },
-    options: { responsive: true, cutout: '70%', plugins: { legend: { display: false }}}
+    options: { responsive: true, cutout: '70%', plugins: { legend: { display: false } } }
   });
   document.getElementById('mountValue').textContent = Math.round(used) + '%';
 }
@@ -81,6 +123,25 @@ function updateCharts() {
       document.getElementById('cpuValue').textContent = Math.round(data.cpu) + '%';
       document.getElementById('ramValue').textContent = Math.round(data.ram) + '%';
     });
+
+  fetch('/api/disk-io-rate')
+  .then(res => res.json())
+  .then(data => {
+    diskIOChart.data.datasets[0].data = [data.read_mb_per_s, data.write_mb_per_s];
+    diskIOChart.update();
+    document.getElementById('diskIOValue').textContent =
+      `Read: ${data.read_mb_per_s} MB/s / Write: ${data.write_mb_per_s} MB/s`;;
+  });
+
+fetch('/api/network-io-rate')
+  .then(res => res.json())
+  .then(data => {
+    netIOChart.data.datasets[0].data = [data.sent_mb_per_s, data.recv_mb_per_s];
+    netIOChart.update();
+    document.getElementById('netIOValue').textContent =
+      `Sent: ${data.sent_mb_per_s} MB/s / Recv: ${data.recv_mb_per_s} MB/s`;
+  });
+
 }
 
 function updateMountData() {
@@ -121,7 +182,7 @@ function closeModal(event) {
 
 function updateLastRefreshTime() {
   const now = new Date();
-  const timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+  const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   document.getElementById('last-refresh-time').textContent = 'Last refreshed: ' + timeStr;
 }
 
@@ -139,30 +200,10 @@ document.getElementById('refresh-btn').addEventListener('click', () => {
   updateLastRefreshTime();
 });
 
-function openModal(filename, reportName) {
-  const modal = document.getElementById('modal-overlay');
-  const iframe = document.getElementById('modal-iframe');
-  const title = document.getElementById('modal-title');
-  iframe.src = "/report/" + filename;
-  title.textContent = reportName;
-  modal.style.display = "flex";
-  modal.classList.add('active');
-  modal.classList.remove('closing');
-}
-
-function closeModal(event) {
-  if (event && event.target.id !== 'modal-overlay' && event.target.id !== 'modal-close-btn') return;
-  const modal = document.getElementById('modal-overlay');
-  // Start closing animation
-  modal.classList.add('closing');
-  modal.classList.remove('active');
-  // Wait for animation to finish then hide modal and clear iframe
-  modal.addEventListener('animationend', function handler() {
-    modal.style.display = "none";
-    document.getElementById('modal-iframe').src = "";
-    modal.removeEventListener('animationend', handler);
-  });
-}
+// Initial load update
+updateCharts();
+updateMountData();
+updateLastRefreshTime();
 
 document.querySelectorAll('.sidebar-nav a').forEach(link => {
   link.addEventListener('click', () => {
