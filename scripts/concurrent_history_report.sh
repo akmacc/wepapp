@@ -1,14 +1,14 @@
 #!/bin/bash
 ###############################################################################
-# Script Name : tablespace_report.sh
-# Description : Generates an HTML report for Tablespace Status.
+# Script Name : concurrent_history_report.sh
+# Description : Generates an HTML report for Concurrent Program Daily History.
 # Author      : Guna Ak
 # Created On  : 2025-09-23
 # Version     : 1.1 (Credential fetching from .db_creds)
 ###############################################################################
 
 # Usage:
-#   ./tablespace_report.sh <SID_PDB> [output_dir]
+#   ./concurrent_history_report.sh <SID_PDB> [output_dir]
 
 # User modifications
 CRED_FILE="/home/oracle/dba_scripts/.db_creds"
@@ -68,7 +68,7 @@ if [[ -z "$ORA_PASS" ]]; then
 fi
 
 TODAY=$(date '+%Y-%m-%d_%H-%M-%S')
-REPORT_FILENAME="tablespace_report_${ORACLE_SID}_${TODAY}.html"
+REPORT_FILENAME="concurrent_history_report_${ORACLE_SID}_${TODAY}.html"
 OUTFILE="${OUTPUT_DIR}/${REPORT_FILENAME}"
 
 mkdir -p "$OUTPUT_DIR"
@@ -79,29 +79,29 @@ set feedback off
 set pagesize 200
 set linesize 200
 
-set markup html on spool on entmap off preformat off head "<title>Oracle Tablespace Status</title><style>body{font-family:Arial,sans-serif;background-color:#f5f2ff;color:#2d1a40;margin:20px;}.container{background-color:#fff;border-radius:15px;box-shadow:0 5px 20px rgba(0,0,0,0.05);padding:20px;margin:auto;max-width:95%;}h1,h2{color:#7f62ca;text-align:center;margin-bottom:20px;}table{width:100%;border-collapse:collapse;margin-top:20px;}th,td{border:1px solid #d4d3ef;padding:10px;text-align:left;font-size:14px;}th{background-color:#7f62ca;color:#fff;}tr:nth-child(even){background-color:#f9f9f9;}tr:hover{background-color:#f1f1f1;}
-.warn {background:#f39c12;color:#fff;font-weight:bold;}
-.crit {background:#e74c3c;color:#fff;font-weight:bold;}
-.ok   {background:#27ae60;color:#fff;font-weight:bold;}
-</style>" table "border='1' width='100%'"
+set markup html on spool on entmap off preformat off head "<title>Oracle Concurrent Program Daily History</title><style>body{font-family:Arial,sans-serif;background-color:#f5f2ff;color:#2d1a40;margin:20px;}.container{background-color:#fff;border-radius:15px;box-shadow:0 5px 20px rgba(0,0,0,0.05);padding:20px;margin:auto;max-width:95%;}h1,h2{color:#7f62ca;text-align:center;margin-bottom:20px;}table{width:100%;border-collapse:collapse;margin-top:20px;}th,td{border:1px solid #d4d3ef;padding:10px;text-align:left;font-size:14px;}th{background-color:#7f62ca;color:#fff;}tr:nth-child(even){background-color:#f9f9f9;}tr:hover{background-color:#f1f1f1;}</style>" table "border='1' width='100%'"
 
 spool ${OUTFILE}
 
 PROMPT <div class="container">
-PROMPT <h1>Tablespace Status for ${ORACLE_SID}</h1>
+PROMPT <h1>Concurrent Program Daily History for ${ORACLE_SID}</h1>
 PROMPT <p>Report Generated On: $(date +"%d-%m-%Y %H:%M:%S")</p>
 
-select tablespace_name,
-       round(used_space*8192/1024/1024)  used_mb,
-       round(tablespace_size*8192/1024/1024) size_mb,
-       round(100-used_percent,2) free_pct,
-       case
-         when 100-used_percent < 5  then '<span class="crit">CRITICAL</span>'
-         when 100-used_percent < 15 then '<span class="warn">WARNING</span>'
-         else '<span class="ok">OK</span>'
-       end status
-from dba_tablespace_usage_metrics
-order by free_pct;
+SELECT
+  TO_CHAR(TRUNC(actual_start_date),'DD-MON-YY DY') AS start_date,
+  COUNT(*) AS count,
+  ROUND(SUM(actual_completion_date - actual_start_date)*24,2) AS running_hours,
+  ROUND(AVG(actual_completion_date - actual_start_date)*24,2) AS avg_running_hours,
+  ROUND(SUM(actual_start_date - requested_start_date)*24,2) AS pending_hours,
+  ROUND(AVG(actual_start_date - requested_start_date)*24,2) AS avg_pending_hours
+FROM applsys.fnd_concurrent_programs p,
+     applsys.fnd_concurrent_requests r
+WHERE r.program_application_id = p.application_id
+  AND r.concurrent_program_id = p.concurrent_program_id
+  AND r.status_code IN ('C','G')
+  AND TRUNC(actual_completion_date) > TRUNC(SYSDATE - 6)
+GROUP BY TRUNC(actual_start_date)
+ORDER BY TRUNC(actual_start_date);
 
 PROMPT </div>
 spool off

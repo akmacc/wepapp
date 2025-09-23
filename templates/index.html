@@ -48,6 +48,8 @@
 
 <div id="live-report-section" class="dashboard-section">
   <h2 class="section-title">On-Demand Reports</h2>
+  <!-- Oracle Connection Details Input - REMOVED -->
+
   <div class="reports-grid">
     <article class="report-card" id="tablespace-card">
       <div class="card-header"><i class="fas fa-database"></i> <h4>Tablespace Monitor</h4></div>
@@ -81,6 +83,99 @@
         <div class="last-update" id="invalid-objects-last-update"><i class="far fa-clock"></i> Last update: Not run yet</div>
       </div>
     </article>
+
+    <!-- NEW LIVE REPORT CARDS -->
+    <article class="report-card" id="concurrent-managers-card">
+      <div class="card-header"><i class="fas fa-tasks"></i> <h4>Concurrent Managers</h4></div>
+      <div class="card-body">
+        <div class="button-group">
+          <button class="action-btn run-btn" data-report-type="concurrent-managers" data-report-display-name="Concurrent Managers Report" onclick="runConcurrentManagersReport()">
+            <i class="fas fa-play"></i> Run
+          </button>
+          <button class="action-btn view-btn" data-report-type="concurrent-managers" data-report-display-name="Concurrent Managers Report" onclick="handleLiveReportAction(this, 'view')" disabled>
+            <i class="fas fa-eye"></i> View
+          </button>
+          <button class="action-btn download-btn" data-report-type="concurrent-managers" data-report-display-name="Concurrent Managers Report" onclick="handleLiveReportAction(this, 'download')" disabled>
+            <i class="fas fa-download"></i> Download
+          </button>
+        </div>
+        <div class="last-update" id="concurrent-managers-last-update"><i class="far fa-clock"></i> Last update: Not run yet</div>
+      </div>
+    </article>
+
+    <article class="report-card" id="workflow-mailer-card">
+      <div class="card-header"><i class="fas fa-envelope"></i> <h4>Workflow Mailer Status</h4></div>
+      <div class="card-body">
+        <div class="button-group">
+          <button class="action-btn run-btn" data-report-type="workflow-mailer" data-report-display-name="Workflow Mailer Report" onclick="runWorkflowMailerReport()">
+            <i class="fas fa-play"></i> Run
+          </button>
+          <button class="action-btn view-btn" data-report-type="workflow-mailer" data-report-display-name="Workflow Mailer Report" onclick="handleLiveReportAction(this, 'view')" disabled>
+            <i class="fas fa-eye"></i> View
+          </button>
+          <button class="action-btn download-btn" data-report-type="workflow-mailer" data-report-display-name="Workflow Mailer Report" onclick="handleLiveReportAction(this, 'download')" disabled>
+            <i class="fas fa-download"></i> Download
+          </button>
+        </div>
+        <div class="last-update" id="workflow-mailer-last-update"><i class="far fa-clock"></i> Last update: Not run yet</div>
+      </div>
+    </article>
+    
+    <article class="report-card" id="top-segments-card">
+      <div class="card-header"><i class="fas fa-chart-pie"></i> <h4>Top 10 Largest Segments</h4></div>
+      <div class="card-body">
+        <div class="button-group">
+          <button class="action-btn run-btn" data-report-type="top-segments" data-report-display-name="Top Segments Report" onclick="runTopSegmentsReport()">
+            <i class="fas fa-play"></i> Run
+          </button>
+          <button class="action-btn view-btn" data-report-type="top-segments" data-report-display-name="Top Segments Report" onclick="handleLiveReportAction(this, 'view')" disabled>
+            <i class="fas fa-eye"></i> View
+          </button>
+          <button class="action-btn download-btn" data-report-type="top-segments" data-report-display-name="Top Segments Report" onclick="handleLiveReportAction(this, 'download')" disabled>
+            <i class="fas fa-download"></i> Download
+          </button>
+        </div>
+        <div class="last-update" id="top-segments-last-update"><i class="far fa-clock"></i> Last update: Not run yet</div>
+      </div>
+    </article>
+
+    <article class="report-card" id="concurrent-history-card">
+      <div class="card-header"><i class="fas fa-history"></i> <h4>Concurrent History</h4></div>
+      <div class="card-body">
+        <div class="button-group">
+          <button class="action-btn run-btn" data-report-type="concurrent-history" data-report-display-name="Concurrent History Report" onclick="runConcurrentHistoryReport()">
+            <i class="fas fa-play"></i> Run
+          </button>
+          <button class="action-btn view-btn" data-report-type="concurrent-history" data-report-display-name="Concurrent History Report" onclick="handleLiveReportAction(this, 'view')" disabled>
+            <i class="fas fa-eye"></i> View
+          </button>
+          <button class="action-btn download-btn" data-report-type="concurrent-history" data-report-display-name="Concurrent History Report" onclick="handleLiveReportAction(this, 'download')" disabled>
+            <i class="fas fa-download"></i> Download
+          </button>
+        </div>
+        <div class="last-update" id="concurrent-history-last-update"><i class="far fa-clock"></i> Last update: Not run yet</div>
+      </div>
+    </article>
+
+    <article class="report-card" id="database-backup-card">
+      <div class="card-header"><i class="fas fa-save"></i> <h4>Database Backup Status</h4></div>
+      <div class="card-body">
+        <div class="button-group">
+          <button class="action-btn run-btn" data-report-type="database-backup" data-report-display-name="Database Backup Report" onclick="runDatabaseBackupReport()">
+            <i class="fas fa-play"></i> Run
+          </button>
+          <button class="action-btn view-btn" data-report-type="database-backup" data-report-display-name="Database Backup Report" onclick="handleLiveReportAction(this, 'view')" disabled>
+            <i class="fas fa-eye"></i> View
+          </button>
+          <button class="action-btn download-btn" data-report-type="database-backup" data-report-display-name="Database Backup Report" onclick="handleLiveReportAction(this, 'download')" disabled>
+            <i class="fas fa-download"></i> Download
+          </button>
+        </div>
+        <div class="last-update" id="database-backup-last-update"><i class="far fa-clock"></i> Last update: Not run yet</div>
+      </div>
+    </article>
+    <!-- END NEW LIVE REPORT CARDS -->
+
   </div>
 </div>
 

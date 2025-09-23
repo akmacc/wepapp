@@ -3,8 +3,16 @@ let cpuChart, ramChart, mountPieChart, diskIOChart, netIOChart;
 let mountsData = [];
 let selectedMountIndex = 0;
 
+// Oracle Connection Details (No longer stored/managed in frontend JS)
+// let oracleSid = '';
+// let oracleUser = '';
+// let oraclePassword = '';
+
 // --- Utility Functions ---
 function logout() {
+  // Clean up any remaining Oracle connection details from localStorage if they were stored by previous versions
+  localStorage.removeItem('oracleSid');
+  localStorage.removeItem('oracleUser');
   window.location.href = "/logout";
 }
 
@@ -119,8 +127,6 @@ function updateChartColors(chart, type) {
 
 
 // --- Chart Initialization Functions ---
-// These functions will now create the charts and immediately call updateChartColors
-// to ensure they have the correct theme colors from the start.
 function initCpuChart() {
   const ctx = document.getElementById('cpuChart').getContext('2d');
   cpuChart = new Chart(ctx, {
@@ -241,9 +247,7 @@ async function updateCharts() {
     const res = await fetch('/api/disk-io-rate');
     if (!res.ok) throw new Error("Failed to fetch disk I/O rate.");
     const data = await res.json();
-    const isDarkMode = document.body.classList.contains('dark-mode');
-    diskIOChart.data.datasets[0].backgroundColor[0] = isDarkMode ? '#82B1FF' : '#36A2EB';
-    diskIOChart.data.datasets[0].backgroundColor[1] = isDarkMode ? '#CF6679' : '#FF6384';
+    updateChartColors(diskIOChart, 'diskIO'); // Update colors before data
     diskIOChart.data.datasets[0].data = [data.read_mb_per_s, data.write_mb_per_s];
     diskIOChart.update();
     document.getElementById('diskIOValue').innerHTML = `Read: ${data.read_mb_per_s} MB/s / Write: ${data.write_mb_per_s} MB/s`;
@@ -256,9 +260,7 @@ async function updateCharts() {
     const res = await fetch('/api/network-io-rate');
     if (!res.ok) throw new Error("Failed to fetch network I/O rate.");
     const data = await res.json();
-    const isDarkMode = document.body.classList.contains('dark-mode');
-    netIOChart.data.datasets[0].backgroundColor[0] = isDarkMode ? '#69F0AE' : '#4BC0C0';
-    netIOChart.data.datasets[0].backgroundColor[1] = isDarkMode ? '#FFAB40' : '#FF9F40';
+    updateChartColors(netIOChart, 'netIO'); // Update colors before data
     netIOChart.data.datasets[0].data = [data.sent_mb_per_s, data.recv_mb_per_s];
     netIOChart.update();
     document.getElementById('netIOValue').innerHTML = `Sent: ${data.sent_mb_per_s} MB/s / Recv: ${data.recv_mb_per_s} MB/s`;
@@ -339,10 +341,15 @@ async function runReport(reportType, scriptApiPath, updateElementId, cardId) {
   downloadButton.disabled = true;
 
   try {
-    const res = await fetch(scriptApiPath, { method: 'POST' });
+    // No longer passing credentials from frontend
+    const res = await fetch(scriptApiPath, { 
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}) // Empty body as credentials are server-side
+    });
     if (!res.ok) {
       const errorData = await res.json();
-      throw new Error(errorData.error || `Failed to run ${reportType} script`);
+      throw new Error(errorData.detail || `Failed to run ${reportType} script`);
     }
     const data = await res.json();
     
@@ -367,6 +374,26 @@ async function runTablespaceReport() {
 
 async function runInvalidObjectsReport() {
   await runReport('invalid-objects', '/api/run-invalid-objects-report', 'invalid-objects-last-update', 'invalid-objects-card');
+}
+
+async function runConcurrentManagersReport() {
+  await runReport('concurrent-managers', '/api/run-concurrent-managers-report', 'concurrent-managers-last-update', 'concurrent-managers-card');
+}
+
+async function runWorkflowMailerReport() {
+  await runReport('workflow-mailer', '/api/run-workflow-mailer-report', 'workflow-mailer-last-update', 'workflow-mailer-card');
+}
+
+async function runTopSegmentsReport() {
+  await runReport('top-segments', '/api/run-top-segments-report', 'top-segments-last-update', 'top-segments-card');
+}
+
+async function runConcurrentHistoryReport() {
+  await runReport('concurrent-history', '/api/run-concurrent-history-report', 'concurrent-history-last-update', 'concurrent-history-card');
+}
+
+async function runDatabaseBackupReport() {
+  await runReport('database-backup', '/api/run-database-backup-report', 'database-backup-last-update', 'database-backup-card');
 }
 
 
@@ -465,34 +492,47 @@ document.addEventListener('DOMContentLoaded', () => {
   // Activate default section and nav item
   showSection('monitor-section');
 
-  const tablespaceUpdateElement = document.getElementById('tablespace-last-update');
-  const invalidObjectsUpdateElement = document.getElementById('invalid-objects-last-update');
+  // Set initial state for live report buttons
+  const liveReportTypes = [
+    'tablespace',
+    'invalid-objects',
+    'concurrent-managers',
+    'workflow-mailer',
+    'top-segments',
+    'concurrent-history',
+    'database-backup'
+  ];
 
-  const getInitialFilenameFromBackendContext = (reportType) => {
-    const cardElement = document.getElementById(`${reportType}-card`);
-    const lastUpdateDiv = cardElement ? cardElement.querySelector('.last-update') : null;
-    if (lastUpdateDiv && !lastUpdateDiv.textContent.includes('Not run yet')) {
-      return `${reportType}_report_latest.html`; // Placeholder filename
-    }
-    return '';
-  };
-
-  const setInitialLiveReportButtonState = (cardId, reportType) => {
+  const setInitialLiveReportButtonState = (reportType) => {
+    const cardId = `${reportType}-card`;
     const viewBtn = document.querySelector(`#${cardId} .view-btn[data-report-type="${reportType}"]`);
     const downloadBtn = document.querySelector(`#${cardId} .download-btn[data-report-type="${reportType}"]`);
     
-    const initialFilename = getInitialFilenameFromBackendContext(reportType);
+    // Access data passed from Flask through a global variable set by Jinja
+    // window.live_reports_initial_state is populated by the Flask context
+    const initialReportData = window.live_reports_initial_state ? window.live_reports_initial_state[reportType] : null;
 
-    if (viewBtn) {
-        viewBtn.dataset.currentFilename = initialFilename;
-        viewBtn.disabled = !initialFilename;
-    }
-    if (downloadBtn) {
-        downloadBtn.dataset.currentFilename = initialFilename;
-        downloadBtn.disabled = !initialFilename;
+    if (viewBtn && downloadBtn) {
+        if (initialReportData && initialReportData.filename) {
+            viewBtn.dataset.currentFilename = initialReportData.filename;
+            downloadBtn.dataset.currentFilename = initialReportData.filename;
+            viewBtn.disabled = false;
+            downloadBtn.disabled = false;
+            document.getElementById(`${reportType}-last-update`).innerHTML = `<i class="far fa-clock"></i> Last update: ${initialReportData.last_modified}`;
+        } else {
+            viewBtn.dataset.currentFilename = '';
+            downloadBtn.dataset.currentFilename = '';
+            viewBtn.disabled = true;
+            downloadBtn.disabled = true;
+            document.getElementById(`${reportType}-last-update`).innerHTML = `<i class="far fa-clock"></i> Last update: Not run yet`;
+        }
     }
   };
 
-  setInitialLiveReportButtonState('tablespace-card', 'tablespace');
-  setInitialLiveReportButtonState('invalid-objects-card', 'invalid-objects');
+  // Populate window.live_reports_initial_state from Jinja context
+  // This needs to be set in the Jinja template itself, e.g., in a <script> tag:
+  // <script>window.live_reports_initial_state = {{ live_reports_initial_state | tojson }};</script>
+  // Assuming 'live_reports_initial_state' is now globally available.
+  
+  liveReportTypes.forEach(type => setInitialLiveReportButtonState(type));
 });
