@@ -482,4 +482,33 @@ body, html {
   background: #16a34a;
   color: #fff;
 }
+.action-btn.run {
+  background: #18ae62;
+  color: #fff;
+  border: none;
+}
+.action-btn.run:hover {
+  background: #16a34a;
+  color: #fff;
+}
+#live-report-section .button-row {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+#live-report-section .action-btn {
+  min-width: 54px;
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+  margin-right: 0;
+}
 

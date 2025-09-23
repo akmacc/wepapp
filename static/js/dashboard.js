@@ -73,7 +73,25 @@ let netIOChart = new Chart(netIOCtx, {
   }
 });
 
-let tablespaceReportFilename = "";  // Stores current tablespace report filename
+let invalidObjectsReportFilename = "";
+let mountPieChart = null;
+let mountsData = [];
+let selectedMountIndex = 0;
+let tablespaceReportFilename = "";
+
+async function runInvalidObjectsReport() {
+  try {
+    const res = await fetch('/api/run-invalid-objects-report', { method: 'POST' });
+    if (!res.ok) throw new Error("Failed to run invalid objects script");
+    const data = await res.json();
+    invalidObjectsReportFilename = data.filename;
+    document.getElementById('invalid-objects-last-update').textContent = `Last update: ${data.last_modified}`;
+    showMessage("Invalid Objects report generated successfully");
+  } catch (err) {
+    showMessage("Error: " + err.message);
+  }
+}
+
 
 function showSection(section) {
   document.getElementById('monitor-section').style.display = section === 'monitor' ? 'block' : 'none';
@@ -98,10 +116,6 @@ async function runTablespaceReport() {
     showMessage("Error: " + err.message);
   }
 }
-
-let mountPieChart = null;
-let mountsData = [];
-let selectedMountIndex = 0;
 
 function populateMountSelect() {
   const select = document.getElementById('mountSelect');
