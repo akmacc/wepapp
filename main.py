@@ -149,7 +149,7 @@ async def home(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse("/static/login.html")
 
     hostname = socket.gethostname()
-    
+
     # Prepare reports dict with filenames and last modified time or None if not found
     report_buttons = [
         {"name": "OS mount Monitor", "file_prefix": "mount_report_"},

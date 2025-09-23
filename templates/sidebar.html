@@ -1,10 +1,17 @@
 <aside class="sidebar">
-  <h2>Dashboard</h2>
+  <h2 class="sidebar-title">Dashboard</h2>
   <nav class="sidebar-nav">
-    <a href="#" id="nav-monitor" class="active" onclick="showSection('monitor'); return false;">Live Monitor</a>
-    <a href="#" id="nav-reports" onclick="showSection('reports'); return false;">Reports</a>
-    <a href="#" id="nav-live-report" onclick="showSection('live-report'); return false;">Live Report</a>
-    <button class="logout-btn" onclick="logout()">Logout</button>
+    <a href="#" id="nav-monitor" class="sidebar-nav-item active" onclick="showSection('monitor-section'); return false;">
+      <i class="fas fa-tachometer-alt"></i> Live Monitor
+    </a>
+    <a href="#" id="nav-live-report" class="sidebar-nav-item" onclick="showSection('live-report-section'); return false;">
+      <i class="fas fa-file-invoice"></i> Live Reports
+    </a>
+    <a href="#" id="nav-reports" class="sidebar-nav-item" onclick="showSection('reports-section'); return false;">
+      <i class="fas fa-file-alt"></i> Pre-generated Reports
+    </a>
   </nav>
+  <button class="logout-btn" onclick="logout()">
+    <i class="fas fa-sign-out-alt"></i> Logout
+  </button>
 </aside>
-

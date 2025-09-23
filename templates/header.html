@@ -1,8 +1,12 @@
 <header class="headerbar">
-  <span class="title">{{ hostname }}</span>
-  <div class="button-column">
-    <button id="refresh-btn" class="header-btn refresh-btn" title="Refresh live data">Refresh</button>
-    <div id="refresh-message" style="display:none;color:#3498db;margin-top:4px;"></div>
+  <div class="header-content">
+    <span class="header-brand">EBS Monitor</span>
+    <span class="header-hostname"> / {{ hostname }}</span>
+  </div>
+  <div class="header-actions">
+    <button id="refresh-btn" class="action-btn refresh-btn" title="Refresh live data">
+      <i class="fas fa-sync-alt"></i> Refresh
+    </button>
     <div id="last-refresh-time" class="refresh-time">Last refreshed: Never</div>
   </div>
 </header>

@@ -2,96 +2,155 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Login</title>
+  <title>Login - EBS Monitor</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlalK+l3JkX/BfV8/Qe/g/k+e1T+8n5e0I+6aE72d5+Rz/o2F5t+Pj7T6I/6P+gA+3R3i3w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+    :root {
+      --primary-purple: #7f62ca; /* Main purple from your image */
+      --secondary-purple: #a992ea; /* Lighter purple from your image */
+      --text-dark: #2d1a40; /* Dark text from your image */
+      --text-medium: #555555;
+      --text-light: #FFFFFF;
+      --background-light: #f5f2ff; /* Very light background for inputs */
+      --card-background: #FFFFFF;
+      --accent-green: #11c78e; /* Green from RAM chart, for stats */
+      --error-red: #e74c3c; /* Error red from your code */
+
+      --shadow-light: rgba(0, 0, 0, 0.05);
+      --shadow-medium: rgba(0, 0, 0, 0.1);
+      --shadow-login: rgba(127, 98, 202, 0.2); /* Specific shadow for login box */
+      --border-light: #d4d3ef; /* Border color from your code */
+    }
+
     body {
       font-family: 'Poppins', sans-serif;
       margin: 0;
       min-height: 100vh;
-      background: linear-gradient(120deg, #7f9cf5 0%, #a77ff4 100%);
+      background: var(--secondary-purple); /* Overall background from image */
       display: flex;
       justify-content: center;
       align-items: center;
+      color: var(--text-dark);
+      overflow: hidden;
     }
+
     .login-box {
-      background: rgba(255,255,255,0.96);
-      padding: 36px 32px 28px 32px;
-      border-radius: 20px;
-      box-shadow: 0 6px 32px rgba(80, 75, 121, 0.18);
-      width: 350px;
-      max-width: 95vw;
+      background: var(--card-background);
+      padding: 40px;
+      border-radius: 20px; /* More rounded */
+      box-shadow: 0 10px 30px var(--shadow-login); /* Shadow matching image style */
+      width: 380px;
+      max-width: 90vw;
       text-align: center;
-      transition: transform 0.2s;
+      position: relative;
+      overflow: hidden; /* Hide anything that might go outside rounded corners */
+      animation: fadeIn 0.6s ease-out forwards;
     }
-    .login-box h2 {
-      font-size: 28px;
-      font-weight: 700;
-      margin-bottom: 10px;
-      color: #383b56;
-      letter-spacing: -1px;
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
+
     .brand {
       font-weight: 700;
-      font-size: 18px;
-      margin-bottom: 12px;
-      color: #7f9cf5;
-      letter-spacing: 1px;
+      font-size: 24px;
+      margin-bottom: 25px;
+      color: var(--primary-purple);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      opacity: 0.9;
     }
-    .login-box input[type="text"], .login-box input[type="password"] {
+
+    h2 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 30px;
+      color: var(--text-dark);
+      letter-spacing: -0.5px;
+    }
+
+    input[type="text"], input[type="password"] {
       width: 100%;
-      padding: 14px 15px;
-      background: #f3f7fa;
-      border: 1.8px solid #e0e7ff;
-      border-radius: 7px;
-      margin: 14px 0;
+      padding: 15px 20px;
+      background: var(--background-light);
+      border: 1.5px solid var(--border-light); /* Thicker border as in image */
+      border-radius: 8px;
+      margin: 15px 0;
       font-size: 16px;
-      transition: border-color 0.25s, box-shadow 0.25s;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
       box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+      color: var(--text-dark);
     }
-    .login-box input[type="text"]:focus, .login-box input[type="password"]:focus {
-      border-color: #7f9cf5;
-      background: #f8faff;
+
+    input[type="text"]::placeholder, input[type="password"]::placeholder {
+        color: var(--text-medium);
+        opacity: 0.7;
+    }
+
+    input[type="text"]:focus, input[type="password"]:focus {
+      border-color: var(--primary-purple);
+      box-shadow: 0 0 0 3px rgba(127, 98, 202, 0.15); /* Focus ring */
       outline: none;
+      background: var(--card-background);
     }
-    .login-box button {
+
+    button {
       display: block;
       width: 100%;
-      padding: 13px 0 12px 0;
-      margin-top: 8px;
-      background: linear-gradient(90deg, #7f9cf5 0%, #764ba2 100%);
-      color: #fff;
+      padding: 15px 0;
+      margin-top: 25px;
+      background: var(--primary-purple); /* Solid purple for login button */
+      color: var(--text-light);
       border: none;
       border-radius: 8px;
-      font-size: 17px;
-      font-weight: 700;
-      box-shadow: 0 2px 9px 0 rgba(127,156,245,0.15);
-      cursor: pointer;
-      transition: background 0.19s, box-shadow 0.23s;
-    }
-    .login-box button:hover {
-      background: linear-gradient(90deg, #6252f5 0%, #5d399e 100%);
-      box-shadow: 0 4px 14px 0 rgba(127,156,245,0.20);
-    }
-    .error {
-      color: #e74c3c;
+      font-size: 18px;
       font-weight: 600;
-      margin-top: 4px;
-      min-height: 20px;
-      font-size: 0.95rem;
+      box-shadow: 0 4px 15px rgba(127, 98, 202, 0.3); /* Button shadow */
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Poppins', sans-serif;
+      letter-spacing: 0.5px;
     }
-    @media(max-width: 450px){
-      .login-box { padding: 20px 8px; width: 98vw; }
-      .brand{ font-size: 15px; }
-      .login-box h2 { font-size: 22px; }
+
+    button:hover {
+      background: #5e439e; /* Slightly darker on hover */
+      box-shadow: 0 6px 20px rgba(127, 98, 202, 0.4);
+      transform: translateY(-2px);
+    }
+    button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+
+    .error {
+      color: var(--error-red);
+      font-weight: 500;
+      margin-top: 15px;
+      min-height: 20px;
+      font-size: 15px;
+    }
+
+    /* Responsive adjustments */
+    @media(max-width: 480px){
+      .login-box { padding: 30px; width: 95vw; border-radius: 15px; }
+      .brand{ font-size: 20px; margin-bottom: 20px;}
+      h2 { font-size: 24px; margin-bottom: 25px; }
+      input[type="text"], input[type="password"] { padding: 12px 15px; font-size: 15px; margin: 10px 0; }
+      button { padding: 13px 0; font-size: 16px; margin-top: 20px; }
     }
   </style>
 </head>
 <body>
   <div class="login-box">
     <div class="brand">EBS MONITOR</div>
-    <h2>Login</h2>
+    <h2>Login to Dashboard</h2>
     <input type="text" id="username" placeholder="Username" autocomplete="username" />
     <input type="password" id="password" placeholder="Password" autocomplete="current-password" />
     <button onclick="login()">Login</button>
@@ -99,21 +158,32 @@
   </div>
   <script>
      async function login() {
-  const username = document.getElementById("username").value;
-  const password = document.getElementById("password").value;
-  const res = await fetch("/api/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password }),
-  });
-  if (res.ok) {
-    // Successful login, redirect to home page
-    window.location.href = "/";
-  } else {
-    document.getElementById("error").innerText = "Invalid username/password";
-  }
-}
+        document.getElementById("error").innerText = ""; // Clear previous errors
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+        const loginButton = document.querySelector(".login-box button");
+        loginButton.disabled = true; // Disable button during login attempt
+        loginButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...'; // Add spinner
+
+        try {
+            const res = await fetch("/api/token", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password }),
+            });
+            if (res.ok) {
+                window.location.href = "/"; // Successful login, redirect to home page
+            } else {
+                document.getElementById("error").innerText = "Invalid username or password";
+            }
+        } catch (error) {
+            document.getElementById("error").innerText = "Network error. Please try again.";
+            console.error("Login failed:", error);
+        } finally {
+            loginButton.disabled = false; // Re-enable button
+            loginButton.innerHTML = 'Login'; // Restore button text
+        }
+    }
   </script>
 </body>
 </html>
-
