@@ -60,7 +60,7 @@ if [[ -z "$ORA_PASS" ]]; then
 fi
 
 TODAY=$(date '+%Y-%m-%d_%H-%M-%S')
-REPORT_FILENAME="concurrent_history_report.html" # Fixed filename
+REPORT_FILENAME="locked_table_report.html" # Fixed filename
 OUTFILE="${OUTPUT_DIR}/${REPORT_FILENAME}"
 
 mkdir -p "$OUTPUT_DIR"
@@ -90,23 +90,22 @@ set markup html on spool on entmap off preformat off                            
 
 spool $OUTFILE
 
--- Daily Concurrent History
-PROMPT <h2>Concurrent Program Daily History</h2>
-SELECT
-  TO_CHAR(TRUNC(actual_start_date),'DD-MON-YY DY') AS start_date,
-  COUNT(*) AS count,
-  ROUND(SUM(actual_completion_date - actual_start_date)*24,2) AS running_hours,
-  ROUND(AVG(actual_completion_date - actual_start_date)*24,2) AS avg_running_hours,
-  ROUND(SUM(actual_start_date - requested_start_date)*24,2) AS pending_hours,
-  ROUND(AVG(actual_start_date - requested_start_date)*24,2) AS avg_pending_hours
-FROM applsys.fnd_concurrent_programs p,
-     applsys.fnd_concurrent_requests r
-WHERE r.program_application_id = p.application_id
-  AND r.concurrent_program_id = p.concurrent_program_id
-  AND r.status_code IN ('C','G')
-  AND TRUNC(actual_completion_date) > TRUNC(SYSDATE - 6)
-GROUP BY TRUNC(actual_start_date)
-ORDER BY TRUNC(actual_start_date);
+col session_id head 'Sid' form 9999
+col object_name head "Table|Locked" form a30
+col oracle_username head "Oracle|Username" form a10 truncate 
+col os_user_name head "OS|Username" form a10 truncate 
+col process head "Client|Process|ID" form 99999999
+col owner head "Table|Owner" form a10
+col mode_held form a15
+select lo.session_id,lo.oracle_username,lo.os_user_name,
+lo.process,do.object_name,do.owner,
+decode(lo.locked_mode,0, 'None',1, 'Null',2, 'Row Share (SS)',
+3, 'Row Excl (SX)',4, 'Share',5, 'Share Row Excl (SSX)',6, 'Exclusive',
+to_char(lo.locked_mode)) mode_held
+from gv$locked_object lo, dba_objects do
+where lo.object_id = do.object_id
+order by 5
+/
 
 spool off
 EOF

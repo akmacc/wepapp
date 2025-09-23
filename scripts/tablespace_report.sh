@@ -4,20 +4,22 @@
 # Description : Generates an HTML report for Tablespace Status.
 # Author      : Guna Ak
 # Created On  : 2025-09-23
-# Version     : 1.1 (Credential fetching from .db_creds)
+# Version     : 1.10 (Direct HTML table generation from SQL*Plus variables)
 ###############################################################################
 
 # Usage:
-#   ./tablespace_report.sh <SID_PDB> [output_dir]
+#   ./tablespace_report.sh [output_dir]
+#   This script now sources its own environment and fetches credentials.
 
 # User modifications
 CRED_FILE="/home/oracle/dba_scripts/.db_creds"
+# Path to your Oracle database environment file
+ORACLE_ENV_FILE="/u01/install/APPS/19.0.0/EBSCDB_db.env"
 
-# Parameter processing
-SID_PDB_ARG=${1}
-OUTPUT_DIR=${2:-"./report"} # Default to ./report if not provided
+# Parameter processing: OUTPUT_DIR is now the first argument
+OUTPUT_DIR=${1:-"./report"} # Default to ./report if not provided
 
-# --- Credential Fetching Function (Copied from your original script) ---
+# --- Credential Fetching Function ---
 get_pass() {
   local section="$1"
   local key="$2"
@@ -34,41 +36,31 @@ get_pass() {
   ' "$CRED_FILE"
 }
 
-# --- Oracle SID Detection (Copied from your original script) ---
-if [[ -z "$SID_PDB_ARG" ]]; then
-  SID_PDB_ARG=$(grep -v '^#' /etc/oratab | grep -v '^$' | head -1 | cut -d: -f1)
-fi
-if [[ -z "$SID_PDB_ARG" ]]; then
-  echo "ERROR: No Oracle SID found in /etc/oratab and none supplied." >&2
+# --- Source Oracle Environment ---
+if [[ -f "$ORACLE_ENV_FILE" ]]; then
+  source "$ORACLE_ENV_FILE"
+else
+  echo "ERROR: Oracle environment file not found at $ORACLE_ENV_FILE" >&2
   exit 1
 fi
-export ORACLE_SID=$SID_PDB_ARG
 
-# --- Oracle Environment Setup (Copied from your original script) ---
-export ORAENV_ASK=NO
-if command -v oraenv >/dev/null 2>&1; then
-  . oraenv >/dev/null
-else
-  ORACLE_HOME=$(grep -v '^#' /etc/oratab | grep "^${ORACLE_SID}:" | head -1 | cut -d: -f2)
-  if [[ -z "$ORACLE_HOME" ]]; then
-    echo "ERROR: Could not determine ORACLE_HOME for SID=$ORACLE_SID" >&2
-    exit 1
-  fi
-  export ORACLE_HOME
-  PATH=$ORACLE_HOME/bin:$PATH
+# ORACLE_SID should now be set by the sourced environment file.
+if [[ -z "$ORACLE_SID" ]]; then
+  echo "ERROR: ORACLE_SID not set after sourcing $ORACLE_ENV_FILE" >&2
+  exit 1
 fi
 
-# Fetch Oracle 'system' user credentials
+# Fetch Oracle 'system' user credentials for the detected ORACLE_SID
 ORA_USER="system" # Assuming 'system' user for these reports
-ORA_PASS=$(get_pass "$ORACLE_SID" "system_password") # Key from .db_creds
+ORA_PASS=$(get_pass "$ORACLE_SID" "system_password") # Key from .db_creds, expecting 'system_password'
 
 if [[ -z "$ORA_PASS" ]]; then
-  echo "ERROR: Password for Oracle user '$ORA_USER' under SID '$ORACLE_SID' not found in $CRED_FILE" >&2
+  echo "ERROR: Password for Oracle user '$ORA_USER' (key 'system_password') under SID '$ORACLE_SID' not found in $CRED_FILE" >&2
   exit 1
 fi
 
 TODAY=$(date '+%Y-%m-%d_%H-%M-%S')
-REPORT_FILENAME="tablespace_report_${ORACLE_SID}_${TODAY}.html"
+REPORT_FILENAME="tablespace_report.html" # Fixed filename
 OUTFILE="${OUTPUT_DIR}/${REPORT_FILENAME}"
 
 mkdir -p "$OUTPUT_DIR"
@@ -79,18 +71,25 @@ set feedback off
 set pagesize 200
 set linesize 200
 
-set markup html on spool on entmap off preformat off head "<title>Oracle Tablespace Status</title><style>body{font-family:Arial,sans-serif;background-color:#f5f2ff;color:#2d1a40;margin:20px;}.container{background-color:#fff;border-radius:15px;box-shadow:0 5px 20px rgba(0,0,0,0.05);padding:20px;margin:auto;max-width:95%;}h1,h2{color:#7f62ca;text-align:center;margin-bottom:20px;}table{width:100%;border-collapse:collapse;margin-top:20px;}th,td{border:1px solid #d4d3ef;padding:10px;text-align:left;font-size:14px;}th{background-color:#7f62ca;color:#fff;}tr:nth-child(even){background-color:#f9f9f9;}tr:hover{background-color:#f1f1f1;}
-.warn {background:#f39c12;color:#fff;font-weight:bold;}
-.crit {background:#e74c3c;color:#fff;font-weight:bold;}
-.ok   {background:#27ae60;color:#fff;font-weight:bold;}
-</style>" table "border='1' width='100%'"
+-- Enable HTML Markup (ENTMAP OFF so HTML tags pass through)
+set markup html on spool on entmap off preformat off                                           \
+  head "<title>Oracle Database Health Report</title>                                           \
+        <style>                                                                                \
+          body  {background:#fdfdfd;font-family:Arial,sans-serif;color:#222;}                 \
+          h1,h2 {color:#2c3e50;text-align:center;margin:20px 0 10px;}                         \
+          table {border-collapse:collapse;width:95%;margin:12px auto;box-shadow:0 2px 6px #ccc;} \
+          th,td {border:1px solid #888;padding:6px 12px;font-size:13px;}                      \
+          th    {background:#34495e;color:#fff;text-align:left;}                              \
+          tr:nth-child(even){background:#f9f9f9;}                                             \
+          tr:hover {background:#f1f1f1;}                                                       \
+          .warn {background:#f39c12;color:#fff;font-weight:bold;}                             \
+          .crit {background:#e74c3c;color:#fff;font-weight:bold;}                             \
+          .ok   {background:#27ae60;color:#fff;font-weight:bold;}                             \
+        </style>"                                                                              \
+  table "border='1' width='95%'"
 
-spool ${OUTFILE}
-
-PROMPT <div class="container">
-PROMPT <h1>Tablespace Status for ${ORACLE_SID}</h1>
-PROMPT <p>Report Generated On: $(date +"%d-%m-%Y %H:%M:%S")</p>
-
+spool $OUTFILE
+PROMPT <h2>Tablespace Status</h2>
 select tablespace_name,
        round(used_space*8192/1024/1024)  used_mb,
        round(tablespace_size*8192/1024/1024) size_mb,
@@ -103,9 +102,7 @@ select tablespace_name,
 from dba_tablespace_usage_metrics
 order by free_pct;
 
-PROMPT </div>
 spool off
-EXIT
-
 EOF
+# Script must echo the FIXED filename to stdout
 echo "${REPORT_FILENAME}"

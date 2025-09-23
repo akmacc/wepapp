@@ -3,14 +3,8 @@ let cpuChart, ramChart, mountPieChart, diskIOChart, netIOChart;
 let mountsData = [];
 let selectedMountIndex = 0;
 
-// Oracle Connection Details (No longer stored/managed in frontend JS)
-// let oracleSid = '';
-// let oracleUser = '';
-// let oraclePassword = '';
-
 // --- Utility Functions ---
 function logout() {
-  // Clean up any remaining Oracle connection details from localStorage if they were stored by previous versions
   localStorage.removeItem('oracleSid');
   localStorage.removeItem('oracleUser');
   window.location.href = "/logout";
@@ -18,7 +12,7 @@ function logout() {
 
 function showSection(contentSectionId) {
   const sections = ['monitor-section', 'live-report-section', 'reports-section'];
-  const navMap = { // Direct mapping for content sections to nav item IDs
+  const navMap = {
     'monitor-section': 'nav-monitor',
     'live-report-section': 'nav-live-report',
     'reports-section': 'nav-reports'
@@ -26,22 +20,20 @@ function showSection(contentSectionId) {
 
   sections.forEach(id => {
     const section = document.getElementById(id);
-    const navItemId = navMap[id]; // Get the correct nav item ID from the map
+    const navItemId = navMap[id];
     const navItem = document.getElementById(navItemId);
 
     if (id === contentSectionId) {
-      // Show section: first set display block to take space, then animate opacity/transform
       section.style.display = 'block';
       setTimeout(() => {
         section.classList.add('active-section');
-      }, 10); // Small delay to allow browser to register display:block
-      if (navItem) navItem.classList.add('active'); // Ensure nav item is active
+      }, 10);
+      if (navItem) navItem.classList.add('active');
     } else {
-      // Hide section: animate out, then set display none
-      if (navItem) navItem.classList.remove('active'); // Ensure nav item is inactive
+      if (navItem) navItem.classList.remove('active');
       section.classList.remove('active-section');
       section.addEventListener('transitionend', function handler() {
-        if (!section.classList.contains('active-section')) { // Ensure it's still inactive
+        if (!section.classList.contains('active-section')) {
           section.style.display = 'none';
         }
         section.removeEventListener('transitionend', handler);
@@ -66,10 +58,8 @@ function showToast(message, type = 'info', duration = 3000) {
   toast.innerHTML = `${icon} <span class="toast-message">${message}</span>`;
   toastContainer.appendChild(toast);
 
-  // Animate in
   setTimeout(() => toast.classList.add('show'), 100);
 
-  // Animate out and remove
   setTimeout(() => {
     toast.classList.remove('show');
     toast.classList.add('hide');
@@ -87,8 +77,6 @@ function applyTheme(isDarkMode) {
     body.classList.remove('dark-mode');
     localStorage.setItem('theme', 'light');
   }
-  // Update Chart.js colors immediately after applying theme
-  // We need to ensure charts exist before trying to update them
   if (cpuChart) updateChartColors(cpuChart, 'cpu');
   if (ramChart) updateChartColors(ramChart, 'ram');
   if (mountPieChart) updateChartColors(mountPieChart, 'mount');
@@ -97,30 +85,42 @@ function applyTheme(isDarkMode) {
 }
 
 function updateChartColors(chart, type) {
-  const style = getComputedStyle(document.body); // Get computed styles after theme is applied
+  const style = getComputedStyle(document.body);
   const isDarkMode = document.body.classList.contains('dark-mode');
 
-  // General unused background for doughnut charts
   const chartDoughnutBg = style.getPropertyValue('--chart-doughnut-bg').trim();
+  const primaryPurple = style.getPropertyValue('--primary-purple').trim();
+  const accentGreen = style.getPropertyValue('--accent-green').trim();
+  const accentBlue = style.getPropertyValue('--accent-blue').trim();
 
-  // Update logic based on chart type
+  // Define zero/idle state colors for Disk/Net I/O
+  const idleColor = isDarkMode ? '#404040' : '#E0E0E0'; // Darker grey for dark mode idle, lighter for light mode
+
   if (type === 'cpu') {
-    chart.data.datasets[0].backgroundColor[0] = style.getPropertyValue('--accent-blue').trim();
+    chart.data.datasets[0].backgroundColor[0] = accentBlue;
     chart.data.datasets[0].backgroundColor[1] = chartDoughnutBg;
   } else if (type === 'ram') {
-    chart.data.datasets[0].backgroundColor[0] = style.getPropertyValue('--accent-green').trim();
+    chart.data.datasets[0].backgroundColor[0] = accentGreen;
     chart.data.datasets[0].backgroundColor[1] = chartDoughnutBg;
   } else if (type === 'mount') {
-    chart.data.datasets[0].backgroundColor[0] = style.getPropertyValue('--primary-purple').trim();
+    chart.data.datasets[0].backgroundColor[0] = primaryPurple;
     chart.data.datasets[0].backgroundColor[1] = chartDoughnutBg;
   } else if (type === 'diskIO') {
-    // For diskIO and netIO, the colors are already defined in JS directly (hex values)
-    // We update them based on isDarkMode flag
-    chart.data.datasets[0].backgroundColor[0] = isDarkMode ? '#82B1FF' : '#36A2EB'; // Read
-    chart.data.datasets[0].backgroundColor[1] = isDarkMode ? '#CF6679' : '#FF6384'; // Write
+    const readVal = chart.data.datasets[0].data[0];
+    const writeVal = chart.data.datasets[0].data[1];
+    if (readVal === 0 && writeVal === 0) {
+      chart.data.datasets[0].backgroundColor = [idleColor, idleColor]; // Show full idle circle
+    } else {
+      chart.data.datasets[0].backgroundColor = [isDarkMode ? '#82B1FF' : '#4a2599', isDarkMode ? '#CF6679' : '#a078e3'];
+    }
   } else if (type === 'netIO') {
-    chart.data.datasets[0].backgroundColor[0] = isDarkMode ? '#69F0AE' : '#4BC0C0'; // Sent
-    chart.data.datasets[0].backgroundColor[1] = isDarkMode ? '#FFAB40' : '#FF9F40'; // Recv
+    const sentVal = chart.data.datasets[0].data[0];
+    const recvVal = chart.data.datasets[0].data[1];
+    if (sentVal === 0 && recvVal === 0) {
+      chart.data.datasets[0].backgroundColor = [idleColor, idleColor]; // Show full idle circle
+    } else {
+      chart.data.datasets[0].backgroundColor = [isDarkMode ? '#69F0AE' : '#4a2599', isDarkMode ? '#FFAB40' : '#a078e3'];
+    }
   }
   chart.update();
 }
@@ -142,7 +142,6 @@ function initCpuChart() {
       animation: { duration: 1000, easing: 'easeOutQuart' }
     }
   });
-  updateChartColors(cpuChart, 'cpu'); // Apply initial theme colors
 }
 
 function initRamChart() {
@@ -160,7 +159,6 @@ function initRamChart() {
       animation: { duration: 1000, easing: 'easeOutQuart' }
     }
   });
-  updateChartColors(ramChart, 'ram'); // Apply initial theme colors
 }
 
 function initMountPieChart() {
@@ -178,16 +176,18 @@ function initMountPieChart() {
       animation: { duration: 1000, easing: 'easeOutQuart' }
     }
   });
-  updateChartColors(mountPieChart, 'mount'); // Apply initial theme colors
 }
 
 function initDiskIOChart() {
   const ctx = document.getElementById('diskIOChart').getContext('2d');
+  const isDarkMode = document.body.classList.contains('dark-mode');
+  const idleColor = isDarkMode ? '#404040' : '#E0E0E0';
   diskIOChart = new Chart(ctx, {
     type: 'doughnut',
     data: {
       labels: ['Read (MB/s)', 'Write (MB/s)'],
-      datasets: [{ data: [0, 0], backgroundColor: ['#36A2EB', '#FF6384'], borderWidth: 0 }]
+      // Initialize with full idle circle if values are 0
+      datasets: [{ data: [0, 100], backgroundColor: [idleColor, idleColor], borderWidth: 0 }]
     },
     options: {
       responsive: true,
@@ -196,16 +196,18 @@ function initDiskIOChart() {
       animation: { duration: 1000, easing: 'easeOutQuart' }
     }
   });
-  updateChartColors(diskIOChart, 'diskIO'); // Apply initial theme colors
 }
 
 function initNetIOChart() {
   const ctx = document.getElementById('netIOChart').getContext('2d');
+  const isDarkMode = document.body.classList.contains('dark-mode');
+  const idleColor = isDarkMode ? '#404040' : '#E0E0E0';
   netIOChart = new Chart(ctx, {
     type: 'doughnut',
     data: {
       labels: ['Sent (MB/s)', 'Recv (MB/s)'],
-      datasets: [{ data: [0, 0], backgroundColor: ['#4BC0C0', '#FF9F40'], borderWidth: 0 }]
+      // Initialize with full idle circle if values are 0
+      datasets: [{ data: [0, 100], backgroundColor: [idleColor, idleColor], borderWidth: 0 }]
     },
     options: {
       responsive: true,
@@ -214,7 +216,6 @@ function initNetIOChart() {
       animation: { duration: 1000, easing: 'easeOutQuart' }
     }
   });
-  updateChartColors(netIOChart, 'netIO'); // Apply initial theme colors
 }
 
 
@@ -239,6 +240,7 @@ async function updateCharts() {
     document.getElementById('ramValue').textContent = `${Math.round(data.ram)}%`;
   } catch (err) {
     showToast(`Error fetching system stats: ${err.message}`, 'error');
+    console.error("System stats error:", err);
     document.getElementById('cpuValue').textContent = '--%';
     document.getElementById('ramValue').textContent = '--%';
   }
@@ -247,12 +249,23 @@ async function updateCharts() {
     const res = await fetch('/api/disk-io-rate');
     if (!res.ok) throw new Error("Failed to fetch disk I/O rate.");
     const data = await res.json();
-    updateChartColors(diskIOChart, 'diskIO'); // Update colors before data
-    diskIOChart.data.datasets[0].data = [data.read_mb_per_s, data.write_mb_per_s];
+    const readRate = data.read_mb_per_s;
+    const writeRate = data.write_mb_per_s;
+    const isDarkMode = document.body.classList.contains('dark-mode');
+    const idleColor = isDarkMode ? '#404040' : '#E0E0E0';
+
+    if (readRate === 0 && writeRate === 0) {
+      diskIOChart.data.datasets[0].data = [0, 100]; // Fill with 100 to show full circle
+      diskIOChart.data.datasets[0].backgroundColor = [idleColor, idleColor];
+    } else {
+      diskIOChart.data.datasets[0].data = [readRate, writeRate];
+      diskIOChart.data.datasets[0].backgroundColor = [isDarkMode ? '#82B1FF' : '#4a2599', isDarkMode ? '#CF6679' : '#a078e3'];
+    }
     diskIOChart.update();
-    document.getElementById('diskIOValue').innerHTML = `Read: ${data.read_mb_per_s} MB/s / Write: ${data.write_mb_per_s} MB/s`;
+    document.getElementById('diskIOValue').innerHTML = `Read: ${readRate} MB/s / Write: ${writeRate} MB/s`;
   } catch (err) {
     showToast(`Error fetching disk I/O: ${err.message}`, 'error');
+    console.error("Disk I/O error:", err);
     document.getElementById('diskIOValue').innerHTML = `Read: -- / Write: --`;
   }
 
@@ -260,12 +273,23 @@ async function updateCharts() {
     const res = await fetch('/api/network-io-rate');
     if (!res.ok) throw new Error("Failed to fetch network I/O rate.");
     const data = await res.json();
-    updateChartColors(netIOChart, 'netIO'); // Update colors before data
-    netIOChart.data.datasets[0].data = [data.sent_mb_per_s, data.recv_mb_per_s];
+    const sentRate = data.sent_mb_per_s;
+    const recvRate = data.recv_mb_per_s;
+    const isDarkMode = document.body.classList.contains('dark-mode');
+    const idleColor = isDarkMode ? '#404040' : '#E0E0E0';
+
+    if (sentRate === 0 && recvRate === 0) {
+      netIOChart.data.datasets[0].data = [0, 100]; // Fill with 100 to show full circle
+      netIOChart.data.datasets[0].backgroundColor = [idleColor, idleColor];
+    } else {
+      netIOChart.data.datasets[0].data = [sentRate, recvRate];
+      netIOChart.data.datasets[0].backgroundColor = [isDarkMode ? '#69F0AE' : '#4BC0C0', isDarkMode ? '#FFAB40' : '#FF9F40'];
+    }
     netIOChart.update();
-    document.getElementById('netIOValue').innerHTML = `Sent: ${data.sent_mb_per_s} MB/s / Recv: ${data.recv_mb_per_s} MB/s`;
+    document.getElementById('netIOValue').innerHTML = `Sent: ${sentRate} MB/s / Recv: ${recvRate} MB/s`;
   } catch (err) {
     showToast(`Error fetching network I/O: ${err.message}`, 'error');
+    console.error("Network I/O error:", err);
     document.getElementById('netIOValue').innerHTML = `Sent: -- / Recv: --`;
   }
 
@@ -290,6 +314,7 @@ async function updateMountData() {
     }
   } catch (err) {
     showToast(`Error fetching mount data: ${err.message}`, 'error');
+    console.error("Mount data error:", err);
     mountPieChart.data.datasets[0].data = [0, 100];
     mountPieChart.update();
     document.getElementById('mountValue').textContent = '--%';
@@ -341,11 +366,10 @@ async function runReport(reportType, scriptApiPath, updateElementId, cardId) {
   downloadButton.disabled = true;
 
   try {
-    // No longer passing credentials from frontend
     const res = await fetch(scriptApiPath, { 
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({}) // Empty body as credentials are server-side
+      body: JSON.stringify({})
     });
     if (!res.ok) {
       const errorData = await res.json();
@@ -362,6 +386,7 @@ async function runReport(reportType, scriptApiPath, updateElementId, cardId) {
     showToast(`${reportType} report generated successfully!`, 'success');
   } catch (err) {
     showToast(`Error running ${reportType} report: ${err.message}`, 'error');
+    console.error(`Error running ${reportType} report:`, err);
   } finally {
     runButton.disabled = false;
     runButton.innerHTML = '<i class="fas fa-play"></i> Run';
@@ -456,7 +481,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const darkModeToggle = document.getElementById('darkModeToggle');
   const savedTheme = localStorage.getItem('theme');
 
-  // Initialize charts first, then apply theme to set correct colors
   initCpuChart();
   initRamChart();
   initMountPieChart();
@@ -469,7 +493,7 @@ document.addEventListener('DOMContentLoaded', () => {
     applyTheme(true);
   } else {
     darkModeToggle.checked = false;
-    applyTheme(false); // Explicitly apply light theme if not dark
+    applyTheme(false);
   }
 
   darkModeToggle.addEventListener('change', (event) => {
@@ -477,22 +501,18 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   // --- End Dark Mode Initialization ---
 
-  // Initial data load (after charts are initialized and themed)
   updateCharts();
   updateMountData();
   updateLastRefreshTime();
 
-  // Set up refresh button
   document.getElementById('refresh-btn').addEventListener('click', () => {
     updateCharts();
     updateMountData();
     showToast("Live data refreshed!", 'info');
   });
 
-  // Activate default section and nav item
   showSection('monitor-section');
 
-  // Set initial state for live report buttons
   const liveReportTypes = [
     'tablespace',
     'invalid-objects',
@@ -507,32 +527,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const cardId = `${reportType}-card`;
     const viewBtn = document.querySelector(`#${cardId} .view-btn[data-report-type="${reportType}"]`);
     const downloadBtn = document.querySelector(`#${cardId} .download-btn[data-report-type="${reportType}"]`);
+    const lastUpdateElement = document.getElementById(`${reportType}-last-update`);
     
-    // Access data passed from Flask through a global variable set by Jinja
-    // window.live_reports_initial_state is populated by the Flask context
     const initialReportData = window.live_reports_initial_state ? window.live_reports_initial_state[reportType] : null;
 
-    if (viewBtn && downloadBtn) {
+    if (viewBtn && downloadBtn && lastUpdateElement) {
         if (initialReportData && initialReportData.filename) {
             viewBtn.dataset.currentFilename = initialReportData.filename;
             downloadBtn.dataset.currentFilename = initialReportData.filename;
             viewBtn.disabled = false;
             downloadBtn.disabled = false;
-            document.getElementById(`${reportType}-last-update`).innerHTML = `<i class="far fa-clock"></i> Last update: ${initialReportData.last_modified}`;
+            lastUpdateElement.innerHTML = `<i class="far fa-clock"></i> Last update: ${initialReportData.last_modified}`;
         } else {
             viewBtn.dataset.currentFilename = '';
             downloadBtn.dataset.currentFilename = '';
             viewBtn.disabled = true;
             downloadBtn.disabled = true;
-            document.getElementById(`${reportType}-last-update`).innerHTML = `<i class="far fa-clock"></i> Last update: Not run yet`;
+            lastUpdateElement.innerHTML = `<i class="far fa-clock"></i> Last update: Not run yet`;
         }
     }
   };
 
-  // Populate window.live_reports_initial_state from Jinja context
-  // This needs to be set in the Jinja template itself, e.g., in a <script> tag:
-  // <script>window.live_reports_initial_state = {{ live_reports_initial_state | tojson }};</script>
-  // Assuming 'live_reports_initial_state' is now globally available.
-  
   liveReportTypes.forEach(type => setInitialLiveReportButtonState(type));
 });

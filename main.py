@@ -16,27 +16,37 @@ import asyncio
 import socket
 import psutil
 import os
-import configparser # NEW: For parsing .db_creds file
 
 # NEW IMPORTS FOR SESSION MANAGEMENT
 from starlette.middleware.sessions import SessionMiddleware
 
 # Generate a secret key for session management (IMPORTANT: Change this in production!)
 SESSION_SECRET_KEY = os.environ.get("SESSION_SECRET_KEY", "your-super-secret-key-that-you-should-change")
-CRED_FILE_PATH = "/home/oracle/dba_scripts/.db_creds" # Path to your Oracle credentials file
+
 
 # -------------------------
-# Script path
+# Script path & FIXED FILENAMES
 # -------------------------
-TABLESPACE_SCRIPT_PATH = "./scripts/tablespace_report.sh"  # Adjust shell script path here
+# Define paths to scripts
+TABLESPACE_SCRIPT_PATH = "./scripts/tablespace_report.sh"
 INVALID_OBJECTS_SCRIPT_PATH = "./scripts/invalid_objects_report.sh"
-# NEW SCRIPTS
 CONCURRENT_MANAGERS_SCRIPT_PATH = "./scripts/concurrent_managers_report.sh"
 WORKFLOW_MAILER_SCRIPT_PATH = "./scripts/workflow_mailer_report.sh"
 TOP_SEGMENTS_SCRIPT_PATH = "./scripts/top_segments_report.sh"
 CONCURRENT_HISTORY_SCRIPT_PATH = "./scripts/concurrent_history_report.sh"
 DATABASE_BACKUP_SCRIPT_PATH = "./scripts/database_backup_report.sh"
 
+# Define the expected FIXED filenames that each script will generate
+FIXED_REPORT_FILENAMES = {
+    "tablespace": "tablespace_report.html",
+    "invalid-objects": "invalid_objects_report.html",
+    "concurrent-managers": "concurrent_managers_report.html",
+    "workflow-mailer": "workflow_mailer_report.html",
+    "top-segments": "top_segments_report.html",
+    "concurrent-history": "concurrent_history_report.html",
+    "database-backup": "database_backup_report.html",
+    # Add other legacy reports here if they also use fixed names and you want to track them this way
+}
 
 # -------------------------
 # App setup
@@ -113,9 +123,9 @@ def get_current_user(request: Request, db: Session = Depends(get_db)):
     return user
 
 # -------------------------
-# Pydantic Model (Simplified for login/register only)
+# Pydantic Model (for login/register only)
 # -------------------------
-class AuthUserIn(BaseModel): # Renamed to avoid confusion with script params
+class AuthUserIn(BaseModel):
     username: str
     password: str
 
@@ -148,53 +158,6 @@ def logout():
     return response
 
 # -------------------------
-# Oracle Credential Helper (Backend-side)
-# -------------------------
-def _get_oracle_credentials():
-    # 1. Determine ORACLE_SID
-    # Try environment variable
-    sid = os.environ.get('ORACLE_SID')
-    
-    # Try /etc/oratab if env var not set
-    if not sid and os.path.exists('/etc/oratab'):
-        try:
-            with open('/etc/oratab', 'r') as f:
-                for line in f:
-                    if not line.startswith('#') and line.strip():
-                        sid = line.split(':')[0].strip()
-                        if sid: break
-        except Exception as e:
-            print(f"Warning: Could not parse /etc/oratab: {e}")
-
-    # Default if no SID found
-    if not sid:
-        sid = "DEV" # Default SID if none detected
-
-    # 2. Read credentials from .db_creds file
-    config = configparser.ConfigParser()
-    try:
-        config.read(CRED_FILE_PATH)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to read credential file {CRED_FILE_PATH}: {e}")
-
-    if sid not in config:
-        raise HTTPException(status_code=500, detail=f"SID '{sid}' not found in {CRED_FILE_PATH}")
-
-    # Default to 'system' user if not specified in config or for simplicity
-    ora_user = config.get(sid, 'system_user', fallback='system') # Assuming 'system' is a common user
-    ora_pass = config.get(sid, 'system_password', fallback=None) # Assuming password key is 'system_password'
-
-    # You might want to get different users (sys, apps etc.)
-    # For now, simplifying to just one primary user for reports
-    # ora_pass = config.get(sid, 'sys', fallback=None) # For sys
-    # ora_pass = config.get(sid, 'apps', fallback=None) # For apps
-
-    if not ora_pass:
-        raise HTTPException(status_code=500, detail=f"Password for user '{ora_user}' (or default 'system_password') under SID '{sid}' not found in {CRED_FILE_PATH}")
-
-    return sid, ora_user, ora_pass
-
-# -------------------------
 # Dashboard
 # -------------------------
 @app.get("/", response_class=HTMLResponse)
@@ -205,7 +168,7 @@ async def home(request: Request, db: Session = Depends(get_db)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
-        if username is None:
+        if username == None:
             return RedirectResponse("/static/login.html")
     except JWTError:
         return RedirectResponse("/static/login.html")
@@ -223,32 +186,15 @@ async def home(request: Request, db: Session = Depends(get_db)):
         {"name": "Oracle Home Backup", "file_prefix": "Oracle_Home_Backup_"},
     ]
     latest_reports = {}
-    # Scan for pre-existing files for all reports, including the new ones for initial state
-    live_report_files = {
-        "tablespace": "tablespace_report_",
-        "invalid-objects": "invalid_objects_report_",
-        "concurrent-managers": "concurrent_managers_report_",
-        "workflow-mailer": "workflow_mailer_report_",
-        "top-segments": "top_segments_report_",
-        "concurrent-history": "concurrent_history_report_",
-        "database-backup": "database_backup_report_",
-    }
-
-    for btn_type, prefix in live_report_files.items():
-        latest_file = None
-        latest_mtime = 0
-        for f in os.listdir(REPORT_DIR):
-            if f.startswith(prefix) and f.endswith(".html"):
-                filepath = os.path.join(REPORT_DIR, f)
-                mtime = os.path.getmtime(filepath)
-                if mtime > latest_mtime:
-                    latest_mtime = mtime
-                    latest_file = f
-
-        if latest_file:
+    
+    # Use FIXED_REPORT_FILENAMES to check for existing reports
+    for btn_type, fixed_filename in FIXED_REPORT_FILENAMES.items():
+        filepath = os.path.join(REPORT_DIR, fixed_filename)
+        if os.path.exists(filepath):
+            mtime = datetime.fromtimestamp(os.path.getmtime(filepath))
             latest_reports[btn_type] = {
-                "filename": latest_file,
-                "last_modified": datetime.fromtimestamp(latest_mtime).strftime("%Y-%m-%d %H:%M:%S")
+                "filename": fixed_filename, # Store the fixed filename
+                "last_modified": mtime.strftime("%Y-%m-%d %H:%M:%S")
             }
         else:
             latest_reports[btn_type] = None
@@ -257,7 +203,7 @@ async def home(request: Request, db: Session = Depends(get_db)):
     # Process legacy reports separately if needed, or integrate into the above
     # For now, keeping original report_buttons for the 'Reports' section
     legacy_reports_display = {}
-    all_files = sorted(os.listdir(REPORT_DIR), reverse=True)
+    all_files = sorted(os.listdir(REPORT_DIR), reverse=True) # This will still pick up old timestamped files
     for btn in report_buttons:
         for f in all_files:
             if btn["file_prefix"] in f:
@@ -335,78 +281,92 @@ async def network_io_rate():
     })
 
 # --- Live Report Generation Endpoints ---
-async def run_oracle_script_and_return_latest_filename(script_path: str, file_prefix: str):
-    # Get Oracle credentials from server-side file
-    sid, ora_user, ora_pass = _get_oracle_credentials()
+async def run_oracle_script_and_return_latest_filename(script_path: str, report_type_key: str):
+    # The shell script is now responsible for determining SID and credentials.
+    # It will overwrite a FIXED filename.
+    # We must know the expected fixed filename here.
+    expected_fixed_filename = FIXED_REPORT_FILENAMES.get(report_type_key)
+    if not expected_fixed_filename:
+        raise HTTPException(status_code=500, detail=f"Fixed filename for report type '{report_type_key}' not defined.")
 
-    # Pass SID, Oracle User, Oracle Password, and Report_Dir to the shell script
     process = await asyncio.create_subprocess_exec(
-        "bash", script_path, sid, ora_user, ora_pass, REPORT_DIR,
+        "bash", script_path, REPORT_DIR, # Pass REPORT_DIR as the first argument
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
     )
     stdout, stderr = await process.communicate()
 
     if process.returncode != 0:
-        print(f"Script Error ({script_path}): {stderr.decode()}")
-        raise HTTPException(status_code=500, detail=f"Script failed: {stderr.decode()}")
+        script_error_output = stderr.decode().strip()
+        print(f"Script Error ({script_path}): {script_error_output}")
+        raise HTTPException(status_code=500, detail=f"Script failed: {script_error_output}")
     
-    # The script should print the generated filename to stdout
-    generated_filename = stdout.decode().strip()
+    # Shell script should now output the FIXED filename.
+    returned_filename_from_script = stdout.decode().strip()
     
-    if not generated_filename:
+    # Verify that the script returned the expected fixed filename (or at least *a* filename)
+    if not returned_filename_from_script:
         raise HTTPException(status_code=500, detail="Script did not return a filename.")
+    
+    # If the script returned a timestamped name by mistake, we should use the expected fixed one.
+    # If the script returns the fixed name, this will be true.
+    if returned_filename_from_script != expected_fixed_filename:
+        print(f"Warning: Script {script_path} returned '{returned_filename_from_script}', but expected '{expected_fixed_filename}'. Using expected fixed filename.")
+        effective_filename = expected_fixed_filename
+    else:
+        effective_filename = expected_fixed_filename
 
-    # Verify the file exists and get its modification time
-    filepath = os.path.join(REPORT_DIR, generated_filename)
+
+    # Now check the modification time of this fixed file
+    filepath = os.path.join(REPORT_DIR, effective_filename)
     if not os.path.exists(filepath):
-        raise HTTPException(status_code=500, detail=f"Generated report file not found: {generated_filename}")
+        # This error is critical - script claimed to make a file but it's not there
+        raise HTTPException(status_code=500, detail=f"Generated report file '{effective_filename}' not found at expected path '{filepath}' after script execution.")
 
     mtime = datetime.fromtimestamp(os.path.getmtime(filepath))
     last_modified = mtime.strftime("%Y-%m-%d %H:%M:%S")
 
-    return {"filename": generated_filename, "last_modified": last_modified}
+    return {"filename": effective_filename, "last_modified": last_modified}
 
 
 @app.post("/api/run-tablespace-report")
 async def run_tablespace_report_api(background_tasks: BackgroundTasks, current_user: User = Depends(get_current_user)):
     return await run_oracle_script_and_return_latest_filename(
-        TABLESPACE_SCRIPT_PATH, "tablespace_report_"
+        TABLESPACE_SCRIPT_PATH, "tablespace" # Pass the key for FIXED_REPORT_FILENAMES
     )
 
 @app.post("/api/run-invalid-objects-report")
 async def run_invalid_objects_report_api(background_tasks: BackgroundTasks, current_user: User = Depends(get_current_user)):
     return await run_oracle_script_and_return_latest_filename(
-        INVALID_OBJECTS_SCRIPT_PATH, "invalid_objects_report_"
+        INVALID_OBJECTS_SCRIPT_PATH, "invalid-objects"
     )
 
-# NEW ENDPOINTS FOR NEW REPORTS
 @app.post("/api/run-concurrent-managers-report")
 async def run_concurrent_managers_report_api(background_tasks: BackgroundTasks, current_user: User = Depends(get_current_user)):
     return await run_oracle_script_and_return_latest_filename(
-        CONCURRENT_MANAGERS_SCRIPT_PATH, "concurrent_managers_report_"
+        CONCURRENT_MANAGERS_SCRIPT_PATH, "concurrent-managers"
     )
 
 @app.post("/api/run-workflow-mailer-report")
 async def run_workflow_mailer_report_api(background_tasks: BackgroundTasks, current_user: User = Depends(get_current_user)):
     return await run_oracle_script_and_return_latest_filename(
-        WORKFLOW_MAILER_SCRIPT_PATH, "workflow_mailer_report_"
+        WORKFLOW_MAILER_SCRIPT_PATH, "workflow-mailer"
     )
 
 @app.post("/api/run-top-segments-report")
 async def run_top_segments_report_api(background_tasks: BackgroundTasks, current_user: User = Depends(get_current_user)):
     return await run_oracle_script_and_return_latest_filename(
-        TOP_SEGMENTS_SCRIPT_PATH, "top_segments_report_"
+        TOP_SEGMENTS_SCRIPT_PATH, "top-segments"
     )
 
 @app.post("/api/run-concurrent-history-report")
 async def run_concurrent_history_report_api(background_tasks: BackgroundTasks, current_user: User = Depends(get_current_user)):
     return await run_oracle_script_and_return_latest_filename(
-        CONCURRENT_HISTORY_SCRIPT_PATH, "concurrent_history_report_"
+        CONCURRENT_HISTORY_SCRIPT_PATH, "concurrent-history"
     )
 
 @app.post("/api/run-database-backup-report")
 async def run_database_backup_report_api(background_tasks: BackgroundTasks, current_user: User = Depends(get_current_user)):
     return await run_oracle_script_and_return_latest_filename(
-        DATABASE_BACKUP_SCRIPT_PATH, "database_backup_report_"
+        DATABASE_BACKUP_SCRIPT_PATH, "database-backup"
     )

@@ -212,4 +212,9 @@
     <iframe id="modal-iframe"></iframe>
   </div>
 </div>
+
+<script>
+  // This global variable will be populated by the Flask backend
+  window.live_reports_initial_state = {{ live_reports_initial_state | tojson }};
+</script>
 {% endblock %}
