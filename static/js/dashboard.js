@@ -2,9 +2,6 @@
 let cpuChart, ramChart, mountPieChart, diskIOChart, netIOChart;
 let mountsData = [];
 let selectedMountIndex = 0;
-// No longer relying on these global variables for 'current' filenames in handleLiveReportAction
-// let tablespaceReportFilename = "";
-// let invalidObjectsReportFilename = "";
 
 // --- Utility Functions ---
 function logout() {
@@ -72,14 +69,65 @@ function showToast(message, type = 'info', duration = 3000) {
   }, duration);
 }
 
+// --- Theme Management ---
+function applyTheme(isDarkMode) {
+  const body = document.body;
+  if (isDarkMode) {
+    body.classList.add('dark-mode');
+    localStorage.setItem('theme', 'dark');
+  } else {
+    body.classList.remove('dark-mode');
+    localStorage.setItem('theme', 'light');
+  }
+  // Update Chart.js colors immediately after applying theme
+  // We need to ensure charts exist before trying to update them
+  if (cpuChart) updateChartColors(cpuChart, 'cpu');
+  if (ramChart) updateChartColors(ramChart, 'ram');
+  if (mountPieChart) updateChartColors(mountPieChart, 'mount');
+  if (diskIOChart) updateChartColors(diskIOChart, 'diskIO');
+  if (netIOChart) updateChartColors(netIOChart, 'netIO');
+}
+
+function updateChartColors(chart, type) {
+  const style = getComputedStyle(document.body); // Get computed styles after theme is applied
+  const isDarkMode = document.body.classList.contains('dark-mode');
+
+  // General unused background for doughnut charts
+  const chartDoughnutBg = style.getPropertyValue('--chart-doughnut-bg').trim();
+
+  // Update logic based on chart type
+  if (type === 'cpu') {
+    chart.data.datasets[0].backgroundColor[0] = style.getPropertyValue('--accent-blue').trim();
+    chart.data.datasets[0].backgroundColor[1] = chartDoughnutBg;
+  } else if (type === 'ram') {
+    chart.data.datasets[0].backgroundColor[0] = style.getPropertyValue('--accent-green').trim();
+    chart.data.datasets[0].backgroundColor[1] = chartDoughnutBg;
+  } else if (type === 'mount') {
+    chart.data.datasets[0].backgroundColor[0] = style.getPropertyValue('--primary-purple').trim();
+    chart.data.datasets[0].backgroundColor[1] = chartDoughnutBg;
+  } else if (type === 'diskIO') {
+    // For diskIO and netIO, the colors are already defined in JS directly (hex values)
+    // We update them based on isDarkMode flag
+    chart.data.datasets[0].backgroundColor[0] = isDarkMode ? '#82B1FF' : '#36A2EB'; // Read
+    chart.data.datasets[0].backgroundColor[1] = isDarkMode ? '#CF6679' : '#FF6384'; // Write
+  } else if (type === 'netIO') {
+    chart.data.datasets[0].backgroundColor[0] = isDarkMode ? '#69F0AE' : '#4BC0C0'; // Sent
+    chart.data.datasets[0].backgroundColor[1] = isDarkMode ? '#FFAB40' : '#FF9F40'; // Recv
+  }
+  chart.update();
+}
+
+
 // --- Chart Initialization Functions ---
+// These functions will now create the charts and immediately call updateChartColors
+// to ensure they have the correct theme colors from the start.
 function initCpuChart() {
   const ctx = document.getElementById('cpuChart').getContext('2d');
   cpuChart = new Chart(ctx, {
     type: 'doughnut',
     data: {
       labels: ['Used (%)', 'Free (%)'],
-      datasets: [{ data: [0, 100], backgroundColor: ['var(--accent-blue)', '#E0E0E0'], borderWidth: 0 }]
+      datasets: [{ data: [0, 100], backgroundColor: ['var(--accent-blue)', 'var(--chart-doughnut-bg)'], borderWidth: 0 }]
     },
     options: {
       responsive: true,
@@ -88,6 +136,7 @@ function initCpuChart() {
       animation: { duration: 1000, easing: 'easeOutQuart' }
     }
   });
+  updateChartColors(cpuChart, 'cpu'); // Apply initial theme colors
 }
 
 function initRamChart() {
@@ -96,7 +145,7 @@ function initRamChart() {
     type: 'doughnut',
     data: {
       labels: ['Used (%)', 'Free (%)'],
-      datasets: [{ data: [0, 100], backgroundColor: ['var(--accent-green)', '#E0E0E0'], borderWidth: 0 }]
+      datasets: [{ data: [0, 100], backgroundColor: ['var(--accent-green)', 'var(--chart-doughnut-bg)'], borderWidth: 0 }]
     },
     options: {
       responsive: true,
@@ -105,6 +154,7 @@ function initRamChart() {
       animation: { duration: 1000, easing: 'easeOutQuart' }
     }
   });
+  updateChartColors(ramChart, 'ram'); // Apply initial theme colors
 }
 
 function initMountPieChart() {
@@ -113,7 +163,7 @@ function initMountPieChart() {
     type: 'doughnut',
     data: {
       labels: ['Used (%)', 'Free (%)'],
-      datasets: [{ data: [0, 100], backgroundColor: ['var(--primary-purple)', '#E0E0E0'], borderWidth: 0 }]
+      datasets: [{ data: [0, 100], backgroundColor: ['var(--primary-purple)', 'var(--chart-doughnut-bg)'], borderWidth: 0 }]
     },
     options: {
       responsive: true,
@@ -122,6 +172,7 @@ function initMountPieChart() {
       animation: { duration: 1000, easing: 'easeOutQuart' }
     }
   });
+  updateChartColors(mountPieChart, 'mount'); // Apply initial theme colors
 }
 
 function initDiskIOChart() {
@@ -139,6 +190,7 @@ function initDiskIOChart() {
       animation: { duration: 1000, easing: 'easeOutQuart' }
     }
   });
+  updateChartColors(diskIOChart, 'diskIO'); // Apply initial theme colors
 }
 
 function initNetIOChart() {
@@ -156,11 +208,12 @@ function initNetIOChart() {
       animation: { duration: 1000, easing: 'easeOutQuart' }
     }
   });
+  updateChartColors(netIOChart, 'netIO'); // Apply initial theme colors
 }
+
 
 // --- Data Fetching & Chart Updating ---
 async function updateCharts() {
-  // Set initial loading states for values
   document.getElementById('cpuValue').innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
   document.getElementById('ramValue').innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
   document.getElementById('mountValue').innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
@@ -188,6 +241,9 @@ async function updateCharts() {
     const res = await fetch('/api/disk-io-rate');
     if (!res.ok) throw new Error("Failed to fetch disk I/O rate.");
     const data = await res.json();
+    const isDarkMode = document.body.classList.contains('dark-mode');
+    diskIOChart.data.datasets[0].backgroundColor[0] = isDarkMode ? '#82B1FF' : '#36A2EB';
+    diskIOChart.data.datasets[0].backgroundColor[1] = isDarkMode ? '#CF6679' : '#FF6384';
     diskIOChart.data.datasets[0].data = [data.read_mb_per_s, data.write_mb_per_s];
     diskIOChart.update();
     document.getElementById('diskIOValue').innerHTML = `Read: ${data.read_mb_per_s} MB/s / Write: ${data.write_mb_per_s} MB/s`;
@@ -200,6 +256,9 @@ async function updateCharts() {
     const res = await fetch('/api/network-io-rate');
     if (!res.ok) throw new Error("Failed to fetch network I/O rate.");
     const data = await res.json();
+    const isDarkMode = document.body.classList.contains('dark-mode');
+    netIOChart.data.datasets[0].backgroundColor[0] = isDarkMode ? '#69F0AE' : '#4BC0C0';
+    netIOChart.data.datasets[0].backgroundColor[1] = isDarkMode ? '#FFAB40' : '#FF9F40';
     netIOChart.data.datasets[0].data = [data.sent_mb_per_s, data.recv_mb_per_s];
     netIOChart.update();
     document.getElementById('netIOValue').innerHTML = `Sent: ${data.sent_mb_per_s} MB/s / Recv: ${data.recv_mb_per_s} MB/s`;
@@ -287,7 +346,6 @@ async function runReport(reportType, scriptApiPath, updateElementId, cardId) {
     }
     const data = await res.json();
     
-    // Update data-current-filename attribute on buttons for direct access
     viewButton.dataset.currentFilename = data.filename;
     downloadButton.dataset.currentFilename = data.filename;
 
@@ -313,10 +371,9 @@ async function runInvalidObjectsReport() {
 
 
 // --- Report Viewing & Downloading ---
-// New helper function for live reports' view/download buttons
 function handleLiveReportAction(buttonElement, action) {
-  const filename = buttonElement.dataset.currentFilename; // Get filename directly from button
-  const reportDisplayName = buttonElement.dataset.reportDisplayName; // Get display name from button
+  const filename = buttonElement.dataset.currentFilename;
+  const reportDisplayName = buttonElement.dataset.reportDisplayName;
 
   if (!filename) {
     showToast("No report file available to view/download. Please run the report first.", 'warning');
@@ -368,14 +425,32 @@ function updateLastRefreshTime() {
 
 // --- Event Listeners and Initial Load ---
 document.addEventListener('DOMContentLoaded', () => {
-  // Initialize charts
+  // --- Dark Mode Initialization ---
+  const darkModeToggle = document.getElementById('darkModeToggle');
+  const savedTheme = localStorage.getItem('theme');
+
+  // Initialize charts first, then apply theme to set correct colors
   initCpuChart();
   initRamChart();
   initMountPieChart();
   initDiskIOChart();
   initNetIOChart();
 
-  // Initial data load
+
+  if (savedTheme === 'dark') {
+    darkModeToggle.checked = true;
+    applyTheme(true);
+  } else {
+    darkModeToggle.checked = false;
+    applyTheme(false); // Explicitly apply light theme if not dark
+  }
+
+  darkModeToggle.addEventListener('change', (event) => {
+    applyTheme(event.target.checked);
+  });
+  // --- End Dark Mode Initialization ---
+
+  // Initial data load (after charts are initialized and themed)
   updateCharts();
   updateMountData();
   updateLastRefreshTime();
@@ -390,20 +465,23 @@ document.addEventListener('DOMContentLoaded', () => {
   // Activate default section and nav item
   showSection('monitor-section');
 
-  // Set initial state for live report buttons by checking data-current-filename attribute
+  const tablespaceUpdateElement = document.getElementById('tablespace-last-update');
+  const invalidObjectsUpdateElement = document.getElementById('invalid-objects-last-update');
+
+  const getInitialFilenameFromBackendContext = (reportType) => {
+    const cardElement = document.getElementById(`${reportType}-card`);
+    const lastUpdateDiv = cardElement ? cardElement.querySelector('.last-update') : null;
+    if (lastUpdateDiv && !lastUpdateDiv.textContent.includes('Not run yet')) {
+      return `${reportType}_report_latest.html`; // Placeholder filename
+    }
+    return '';
+  };
+
   const setInitialLiveReportButtonState = (cardId, reportType) => {
     const viewBtn = document.querySelector(`#${cardId} .view-btn[data-report-type="${reportType}"]`);
     const downloadBtn = document.querySelector(`#${cardId} .download-btn[data-report-type="${reportType}"]`);
     
-    // Check if the 'Last update' text indicates a report was run (meaning a file might exist)
-    const lastUpdateElement = document.getElementById(`${reportType}-last-update`);
-    const isReportRun = lastUpdateElement && !lastUpdateElement.textContent.includes('Not run yet');
-
-    // On initial load, if a report was previously generated, the backend might have set a filename.
-    // For simplicity, we assume if `isReportRun` is true, a filename (even a dummy one) exists.
-    // In a production app, the backend would pass the actual filename via a data attribute
-    // on the 'last-update' div or directly on the buttons from the Jinja context.
-    const initialFilename = isReportRun ? 'placeholder.html' : ''; // placeholder.html will be replaced by actual filename when run
+    const initialFilename = getInitialFilenameFromBackendContext(reportType);
 
     if (viewBtn) {
         viewBtn.dataset.currentFilename = initialFilename;
